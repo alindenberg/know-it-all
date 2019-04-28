@@ -29,14 +29,4 @@ func InitDatabase() {
 	log.Println("Connected to MongoDB!")
 
 	Db = client.Database("matches")
-
-	// collection := client.Collection("cities")
-	// result := struct{
-	//   	Name string
-	// 		State string
-	// }{}
-	// err = collection.FindOne(context.TODO(), bson.D{{"name", "Gary"}}).Decode(&result)
-	// if(err != nil) { log.Fatal(err) }
-	// log.Println("Find result name : ", result.Name)
-	// log.Println("Find result state : ", result.State)
 }
