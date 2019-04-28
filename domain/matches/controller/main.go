@@ -3,26 +3,18 @@ package matchescontroller
 import (
 	"encoding/json"
 	"net/http"
-	"github.com/google/uuid"
 	"github.com/gorilla/mux"
-	MatchModels "github.com/alindenberg/know-it-all/domain/matches/models"
+	MatchService "github.com/alindenberg/know-it-all/domain/matches/service"
 	SharedResponses "github.com/alindenberg/know-it-all/domain/shared/responses"
-	Repository "github.com/alindenberg/know-it-all/domain/matches/repository"
 )
 
 var COLLECTION = "matches"
 
 func GetMatch(w http.ResponseWriter, req *http.Request) {
 	id := mux.Vars(req)["id"]
-	// Minimal input sanitization on id value
-	// just make sure its valid uuid
-	_, err := uuid.Parse(id)
-	if err != nil {
-		SharedResponses.Error(w, err)
-		return
-	}
 
-	result, err := Repository.GetMatch(id)
+	result, err := MatchService.GetMatch(id) 
+
 	if err != nil {
 		SharedResponses.Error(w, err)
 		return
@@ -34,7 +26,8 @@ func GetMatch(w http.ResponseWriter, req *http.Request) {
 }
 
 func GetAllMatches(w http.ResponseWriter, req *http.Request) {
-	results, err := Repository.GetAllMatches()
+	result, err := MatchService.GetAllMatches()
+	
 	if err != nil {
 		SharedResponses.Error(w, err)
 		return
@@ -42,25 +35,16 @@ func GetAllMatches(w http.ResponseWriter, req *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(results)
+	json.NewEncoder(w).Encode(result)
 }
 
 func CreateMatch(w http.ResponseWriter, req *http.Request) {
-	var match MatchModels.Match
-	decoder := json.NewDecoder(req.Body)
-	err := decoder.Decode(&match)
-	if err != nil {
-		SharedResponses.Error(w, err)
-		return
-	}
-
-	match.MatchID = uuid.New().String()
 	
-	Repository.CreateMatch(match)
+	id, err := MatchService.CreateMatch(req.Body)
 	if err != nil {
 		SharedResponses.Error(w, err)
 		return
 	}
 
-	SharedResponses.Create(w, match.MatchID)
+	SharedResponses.Create(w, id)
 }

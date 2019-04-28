@@ -6,5 +6,5 @@ type Match struct {
 	AwayTeam string
 	Date     string
 	// Home = 0, Away = 1
-	Winner int
+	Winner string
 }

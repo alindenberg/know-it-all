@@ -3,25 +3,16 @@ package leaguescontroller
 import (
 	"net/http"
 	"encoding/json"
-	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 	SharedResponses "github.com/alindenberg/know-it-all/domain/shared/responses"
-	LeagueModels "github.com/alindenberg/know-it-all/domain/leagues/models"
-	LeagueRepository "github.com/alindenberg/know-it-all/domain/leagues/repository"
+	LeagueService "github.com/alindenberg/know-it-all/domain/leagues/service"
 )
 var COLLECTION = "leagues"
 
 func GetLeague(w http.ResponseWriter, req *http.Request) {
 	id := mux.Vars(req)["id"]
-	// Minimal input sanitization on id value
-	// just make sure its valid uuid
-	_, err := uuid.Parse(id)
-	if err != nil {
-		SharedResponses.Error(w, err)
-		return
-	}
 
-	result, err := LeagueRepository.GetLeague(id)
+	result, err := LeagueService.GetLeague(id)
 	if err != nil {
 		SharedResponses.Error(w, err)
 		return
@@ -33,7 +24,7 @@ func GetLeague(w http.ResponseWriter, req *http.Request) {
 }
 
 func GetAllLeagues(w http.ResponseWriter, req *http.Request) {
-	results, err := LeagueRepository.GetAllLeagues()
+	results, err := LeagueService.GetAllLeagues()
 	if err != nil {
 		SharedResponses.Error(w, err)
 		return
@@ -44,20 +35,11 @@ func GetAllLeagues(w http.ResponseWriter, req *http.Request) {
 }
 
 func CreateLeague(w http.ResponseWriter, req *http.Request) {
-	var league LeagueModels.League
-	decoder := json.NewDecoder(req.Body)
-	err := decoder.Decode(&league)
+	id, err := LeagueService.CreateLeague(req.Body)
 	if err != nil {
 		SharedResponses.Error(w, err)
 		return
 	}
 
-	league.LeagueID = uuid.New().String()
-	err = LeagueRepository.CreateLeague(league)
-	if err != nil {
-		SharedResponses.Error(w, err)
-		return
-	}
-
-	SharedResponses.Create(w, league.LeagueID)
+	SharedResponses.Create(w, id)
 }
