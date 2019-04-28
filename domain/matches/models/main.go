@@ -8,7 +8,3 @@ type Match struct {
 	// Home = 0, Away = 1
 	Winner int
 }
-
-type CreateResponse struct {
-	ID string
-}

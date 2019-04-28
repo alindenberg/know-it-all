@@ -2,21 +2,19 @@ package matchesrepository
 
 import (
 	"context"
-	"log"
-
-	mongo "github.com/alindenberg/know-it-all/database"
-	MatchModels "github.com/alindenberg/know-it-all/domain/matches/models"
 	"github.com/mongodb/mongo-go-driver/bson"
 	"github.com/mongodb/mongo-go-driver/mongo/options"
+	mongo "github.com/alindenberg/know-it-all/database"
+	MatchModels "github.com/alindenberg/know-it-all/domain/matches/models"
 )
 
 var COLLECTION = "matches"
 
-func GetAllMatches() []*MatchModels.Match {
+func GetAllMatches() ([]*MatchModels.Match, error) {
 	collection := mongo.Db.Collection(COLLECTION)
 	cur, err := collection.Find(context.TODO(), bson.D{}, options.Find())
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 
 	var results []*MatchModels.Match
@@ -24,31 +22,31 @@ func GetAllMatches() []*MatchModels.Match {
 		var elem MatchModels.Match
 		err := cur.Decode(&elem)
 		if err != nil {
-			log.Fatal(err)
+			return nil, err
 		}
 		results = append(results, &elem)
 	}
 
 	cur.Close(context.TODO())
 
-	return results
+	return results, nil
 }
 
-func GetMatch(id string) *MatchModels.Match {
+func GetMatch(id string) (*MatchModels.Match, error) {
 	var collection = mongo.Db.Collection(COLLECTION)
 	result := MatchModels.Match{}
 	err := collection.FindOne(context.TODO(), bson.D{{"matchid", id}}).Decode(&result)
 	if err != nil {
-		log.Println(err)
+		return nil, err
 	}
 
-	return &result
+	return &result, nil
 }
 
-func CreateMatch(match MatchModels.Match) string {
+func CreateMatch(match MatchModels.Match) error {
 	_, err := mongo.Db.Collection(COLLECTION).InsertOne(context.TODO(), match)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
-	return match.MatchID
+	return nil
 }

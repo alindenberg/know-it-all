@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 	"net/http"
-
+	"encoding/json"
 	"github.com/gorilla/mux"
 	mongo "github.com/alindenberg/know-it-all/database"
 	matchesController "github.com/alindenberg/know-it-all/domain/matches/controller"
@@ -48,14 +48,14 @@ func matchHandler(w http.ResponseWriter, req *http.Request) {
 		matchesController.GetMatch(w, req)
 		break
 	default:
-		break
+		routeNotFound(w)
 	}
 }
 
 func leaguesHandler(w http.ResponseWriter, req *http.Request) {
 	switch req.Method {
 	case http.MethodGet:
-		leaguesController.GetLeagues(w, req)
+		leaguesController.GetAllLeagues(w, req)
 		break
 	case http.MethodPost:
 		leaguesController.CreateLeague(w, req)
@@ -72,4 +72,10 @@ func leagueHandler(w http.ResponseWriter, req *http.Request) {
 	default:
 		break
 	}
+}
+
+func routeNotFound(w http.ResponseWriter) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusBadRequest)
+	json.NewEncoder(w).Encode(map[string]interface{}{"error":"Http method not supported"})
 }

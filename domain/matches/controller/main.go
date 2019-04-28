@@ -1,18 +1,13 @@
 package matchescontroller
 
 import (
-	"log"
-
-	// "bytes"
-
-	// "io/ioutil"
 	"encoding/json"
 	"net/http"
-
-	MatchModels "github.com/alindenberg/know-it-all/domain/matches/models"
-	Repository "github.com/alindenberg/know-it-all/domain/matches/repository"
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
+	MatchModels "github.com/alindenberg/know-it-all/domain/matches/models"
+	SharedResponses "github.com/alindenberg/know-it-all/domain/shared/responses"
+	Repository "github.com/alindenberg/know-it-all/domain/matches/repository"
 )
 
 var COLLECTION = "matches"
@@ -23,10 +18,15 @@ func GetMatch(w http.ResponseWriter, req *http.Request) {
 	// just make sure its valid uuid
 	_, err := uuid.Parse(id)
 	if err != nil {
-		log.Println(err)
+		SharedResponses.Error(w, err)
+		return
 	}
 
-	result := Repository.GetMatch(id)
+	result, err := Repository.GetMatch(id)
+	if err != nil {
+		SharedResponses.Error(w, err)
+		return
+	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
@@ -34,7 +34,12 @@ func GetMatch(w http.ResponseWriter, req *http.Request) {
 }
 
 func GetAllMatches(w http.ResponseWriter, req *http.Request) {
-	var results = Repository.GetAllMatches()
+	results, err := Repository.GetAllMatches()
+	if err != nil {
+		SharedResponses.Error(w, err)
+		return
+	}
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(results)
@@ -45,14 +50,17 @@ func CreateMatch(w http.ResponseWriter, req *http.Request) {
 	decoder := json.NewDecoder(req.Body)
 	err := decoder.Decode(&match)
 	if err != nil {
-		log.Fatal(err)
+		SharedResponses.Error(w, err)
+		return
 	}
 
 	match.MatchID = uuid.New().String()
+	
 	Repository.CreateMatch(match)
+	if err != nil {
+		SharedResponses.Error(w, err)
+		return
+	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	response := MatchModels.CreateResponse{match.MatchID}
-	json.NewEncoder(w).Encode(response)
+	SharedResponses.Create(w, match.MatchID)
 }

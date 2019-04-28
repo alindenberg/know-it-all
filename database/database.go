@@ -28,5 +28,5 @@ func InitDatabase() {
 
 	log.Println("Connected to MongoDB!")
 
-	Db = client.Database("matches")
+	Db = client.Database("knowitall")
 }

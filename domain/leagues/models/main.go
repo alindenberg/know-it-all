@@ -1,7 +1,8 @@
 package leaguemodels
 
 type League struct {
-	name string
-	country string
-	division int
+	LeagueID string
+	Name string
+	Country string
+	Division int
 }
