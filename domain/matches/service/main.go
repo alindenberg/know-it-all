@@ -38,3 +38,14 @@ func CreateMatch(jsonBody io.ReadCloser) (string, error) {
 	
 	return id, MatchRepository.CreateMatch(match)
 }
+
+func DeleteMatch(id string) error {
+	// Minimal input sanitization on id value
+	// just make sure its valid uuid
+	_, err := uuid.Parse(id)
+	if err != nil {
+		return err
+	}
+
+	return MatchRepository.DeleteMatch(id)
+}

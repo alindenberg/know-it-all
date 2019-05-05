@@ -1,6 +1,8 @@
 package grouprepository
 
 import (
+	"fmt"
+	"errors"
 	"context"
 	"github.com/mongodb/mongo-go-driver/bson"
 	"github.com/mongodb/mongo-go-driver/mongo/options"
@@ -44,9 +46,22 @@ func GetGroup(id string) (*GroupModels.Group, error) {
 }
 
 func CreateGroup(group GroupModels.Group) error {
-	_, err := mongo.Db.Collection(COLLECTION).InsertOne(context.TODO(), group)
+	collection := mongo.Db.Collection(COLLECTION)
+	_, err := collection.InsertOne(context.TODO(), group)
+	
+	return err
+}
+
+func DeleteGroup(id string) error {
+	collection := mongo.Db.Collection(COLLECTION)
+	result, err := collection.DeleteOne(context.TODO(), bson.D{{"groupid", id}})
+
 	if err != nil {
 		return err
+	}
+
+	if(result.DeletedCount == 0) {
+		return errors.New(fmt.Sprintf("Document with id %s was not found", id))
 	}
 	return nil
 }

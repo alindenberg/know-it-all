@@ -48,3 +48,16 @@ func CreateMatch(w http.ResponseWriter, req *http.Request, _ httprouter.Params) 
 
 	SharedResponses.Create(w, id)
 }
+
+func DeleteMatch(w http.ResponseWriter, req *http.Request, params httprouter.Params) {
+	id := params.ByName("id")
+
+	err := MatchService.DeleteMatch(id)
+	if err != nil {
+		SharedResponses.Error(w, err)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusNoContent)
+} 

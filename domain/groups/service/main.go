@@ -37,6 +37,15 @@ func CreateGroup(jsonBody io.ReadCloser) (string, error) {
 	group.GroupID = id
 
 	return id, GroupRepository.CreateGroup(group)
+}
 
+func DeleteGroup(id string) error {
+	// Minimal input sanitization on id value
+	// just make sure its valid uuid
+	_, err := uuid.Parse(id)
+	if err != nil {
+		return err
+	}
 
+	return GroupRepository.DeleteGroup(id)
 }

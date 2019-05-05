@@ -1,6 +1,8 @@
 package matchesrepository
 
 import (
+	"fmt"
+	"errors"
 	"context"
 	"github.com/mongodb/mongo-go-driver/bson"
 	"github.com/mongodb/mongo-go-driver/mongo/options"
@@ -47,6 +49,20 @@ func CreateMatch(match MatchModels.Match) error {
 	_, err := mongo.Db.Collection(COLLECTION).InsertOne(context.TODO(), match)
 	if err != nil {
 		return err
+	}
+	return nil
+}
+
+func DeleteMatch(id string) error {
+	collection := mongo.Db.Collection(COLLECTION)
+	result, err := collection.DeleteOne(context.TODO(), bson.D{{"matchid", id}})
+
+	if err != nil {
+		return err
+	}
+
+	if(result.DeletedCount == 0) {
+		return errors.New(fmt.Sprintf("Document with id %s was not found", id))
 	}
 	return nil
 }

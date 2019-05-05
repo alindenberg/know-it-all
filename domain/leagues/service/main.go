@@ -37,6 +37,15 @@ func CreateLeague(jsonBody io.ReadCloser) (string, error) {
 	league.LeagueID = id
 
 	return id, LeagueRepository.CreateLeague(league)
+}
 
+func DeleteLeague(id string) error {
+	// Minimal input sanitization on id value
+	// just make sure its valid uuid
+	_, err := uuid.Parse(id)
+	if err != nil {
+		return err
+	}
 
+	return LeagueRepository.DeleteLeague(id)
 }
