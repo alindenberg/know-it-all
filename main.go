@@ -4,10 +4,11 @@ import (
 	"log"
 	"net/http"
 	"encoding/json"
-	"github.com/gorilla/mux"
+	"github.com/julienschmidt/httprouter"
 	mongo "github.com/alindenberg/know-it-all/database"
 	matchesController "github.com/alindenberg/know-it-all/domain/matches/controller"
 	leaguesController "github.com/alindenberg/know-it-all/domain/leagues/controller"
+	groupsController "github.com/alindenberg/know-it-all/domain/groups/controller"
 )
 
 func main() {
@@ -18,60 +19,28 @@ func main() {
 }
 
 func addRouteHandlers() {
-	r := mux.NewRouter()
-	r.HandleFunc("/matches", matchesHandler)
-	r.HandleFunc("/matches/{id}", matchHandler)
-	r.HandleFunc("/leagues", leaguesHandler)
-	r.HandleFunc("/leagues/{id}", leagueHandler)
+	r := httprouter.New()
+	// MatchRoutes
+	r.GET("/matches/:id", matchesController.GetMatch)
+	r.GET("/matches", matchesController.GetAllMatches)
+	r.POST("/matches", matchesController.CreateMatch)
+
+	// League Routes
+	r.GET("/leagues/:id", leaguesController.GetLeague)
+	r.GET("/leagues", leaguesController.GetAllLeagues)
+	r.POST("/leagues", leaguesController.CreateLeague)
+
+	// Group Routes
+	r.GET("/groups/:id", groupsController.GetGroup)
+	r.GET("/groups", groupsController.GetAllGroups)
+	r.POST("/groups", groupsController.CreateGroup)
+
+	// Register routes
 	http.Handle("/", r)
 }
 
 func startServer() {
 	log.Fatal(http.ListenAndServe(":8080", nil))
-}
-
-func matchesHandler(w http.ResponseWriter, req *http.Request) {
-	switch req.Method {
-	case http.MethodGet:
-		matchesController.GetAllMatches(w, req)
-		break
-	case http.MethodPost:
-		matchesController.CreateMatch(w, req)
-		break
-	default:
-		log.Println(w, "Application can't handle "+req.Method+" requests")
-	}
-}
-func matchHandler(w http.ResponseWriter, req *http.Request) {
-	switch req.Method {
-	case http.MethodGet:
-		matchesController.GetMatch(w, req)
-		break
-	default:
-		routeNotFound(w)
-	}
-}
-
-func leaguesHandler(w http.ResponseWriter, req *http.Request) {
-	switch req.Method {
-	case http.MethodGet:
-		leaguesController.GetAllLeagues(w, req)
-		break
-	case http.MethodPost:
-		leaguesController.CreateLeague(w, req)
-		break
-	default:
-		log.Println(w, "Application can't handle "+req.Method+" requests")
-	}
-}
-func leagueHandler(w http.ResponseWriter, req *http.Request) {
-	switch req.Method {
-	case http.MethodGet:
-		leaguesController.GetLeague(w, req)
-		break
-	default:
-		break
-	}
 }
 
 func routeNotFound(w http.ResponseWriter) {

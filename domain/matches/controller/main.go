@@ -3,15 +3,15 @@ package matchescontroller
 import (
 	"encoding/json"
 	"net/http"
-	"github.com/gorilla/mux"
+	"github.com/julienschmidt/httprouter"
 	MatchService "github.com/alindenberg/know-it-all/domain/matches/service"
 	SharedResponses "github.com/alindenberg/know-it-all/domain/shared/responses"
 )
 
 var COLLECTION = "matches"
 
-func GetMatch(w http.ResponseWriter, req *http.Request) {
-	id := mux.Vars(req)["id"]
+func GetMatch(w http.ResponseWriter, req *http.Request, params httprouter.Params) {
+	id := params.ByName("id")
 
 	result, err := MatchService.GetMatch(id) 
 
@@ -25,7 +25,7 @@ func GetMatch(w http.ResponseWriter, req *http.Request) {
 	json.NewEncoder(w).Encode(result)
 }
 
-func GetAllMatches(w http.ResponseWriter, req *http.Request) {
+func GetAllMatches(w http.ResponseWriter, req *http.Request, _ httprouter.Params) {
 	result, err := MatchService.GetAllMatches()
 	
 	if err != nil {
@@ -38,7 +38,7 @@ func GetAllMatches(w http.ResponseWriter, req *http.Request) {
 	json.NewEncoder(w).Encode(result)
 }
 
-func CreateMatch(w http.ResponseWriter, req *http.Request) {
+func CreateMatch(w http.ResponseWriter, req *http.Request, _ httprouter.Params) {
 	
 	id, err := MatchService.CreateMatch(req.Body)
 	if err != nil {

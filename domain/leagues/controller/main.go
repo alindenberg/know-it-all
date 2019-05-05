@@ -3,14 +3,13 @@ package leaguescontroller
 import (
 	"net/http"
 	"encoding/json"
-	"github.com/gorilla/mux"
+	"github.com/julienschmidt/httprouter"
 	SharedResponses "github.com/alindenberg/know-it-all/domain/shared/responses"
 	LeagueService "github.com/alindenberg/know-it-all/domain/leagues/service"
 )
-var COLLECTION = "leagues"
 
-func GetLeague(w http.ResponseWriter, req *http.Request) {
-	id := mux.Vars(req)["id"]
+func GetLeague(w http.ResponseWriter, req *http.Request, params httprouter.Params) {
+	id := params.ByName("id")
 
 	result, err := LeagueService.GetLeague(id)
 	if err != nil {
@@ -23,7 +22,7 @@ func GetLeague(w http.ResponseWriter, req *http.Request) {
 	json.NewEncoder(w).Encode(result)
 }
 
-func GetAllLeagues(w http.ResponseWriter, req *http.Request) {
+func GetAllLeagues(w http.ResponseWriter, req *http.Request, _ httprouter.Params) {
 	results, err := LeagueService.GetAllLeagues()
 	if err != nil {
 		SharedResponses.Error(w, err)
@@ -34,7 +33,7 @@ func GetAllLeagues(w http.ResponseWriter, req *http.Request) {
 	json.NewEncoder(w).Encode(results)
 }
 
-func CreateLeague(w http.ResponseWriter, req *http.Request) {
+func CreateLeague(w http.ResponseWriter, req *http.Request, _ httprouter.Params) {
 	id, err := LeagueService.CreateLeague(req.Body)
 	if err != nil {
 		SharedResponses.Error(w, err)
