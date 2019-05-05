@@ -1,4 +1,4 @@
-package grouprepository
+package userrepository
 
 import (
 	"fmt"
@@ -7,21 +7,21 @@ import (
 	"github.com/mongodb/mongo-go-driver/bson"
 	"github.com/mongodb/mongo-go-driver/mongo/options"
 	mongo "github.com/alindenberg/know-it-all/database"
-	GroupModels "github.com/alindenberg/know-it-all/domain/groups/models"
+	UserModels "github.com/alindenberg/know-it-all/domain/users/models"
 )
 
-var COLLECTION = "groups"
+var COLLECTION = "users"
 
-func GetAllGroups() ([]*GroupModels.Group, error) {
+func GetAllUsers() ([]*UserModels.User, error) {
 	collection := mongo.Db.Collection(COLLECTION)
 	cur, err := collection.Find(context.TODO(), bson.D{}, options.Find())
 	if err != nil {
 		return nil, err
 	}
 
-	var results []*GroupModels.Group
+	var results []*UserModels.User
 	for cur.Next(context.TODO()) {
-		var elem GroupModels.Group
+		var elem UserModels.User
 		err := cur.Decode(&elem)
 		if err != nil {
 			return nil, err
@@ -34,10 +34,10 @@ func GetAllGroups() ([]*GroupModels.Group, error) {
 	return results, nil
 }
 
-func GetGroup(id string) (*GroupModels.Group, error) {
+func GetUser(id string) (*UserModels.User, error) {
 	collection := mongo.Db.Collection(COLLECTION)
-	result := GroupModels.Group{}
-	err := collection.FindOne(context.TODO(), bson.D{{"groupid", id}}).Decode(&result)
+	result := UserModels.User{}
+	err := collection.FindOne(context.TODO(), bson.D{{"userid", id}}).Decode(&result)
 	if err != nil {
 		return nil, err
 	}
@@ -45,16 +45,16 @@ func GetGroup(id string) (*GroupModels.Group, error) {
 	return &result, nil
 }
 
-func CreateGroup(group GroupModels.Group) error {
+func CreateUser(user UserModels.User) error {
 	collection := mongo.Db.Collection(COLLECTION)
-	_, err := collection.InsertOne(context.TODO(), group)
-	
+	_, err := collection.InsertOne(context.TODO(), user)
+
 	return err
 }
 
-func DeleteGroup(id string) error {
+func DeleteUser(id string) error {
 	collection := mongo.Db.Collection(COLLECTION)
-	result, err := collection.DeleteOne(context.TODO(), bson.D{{"groupid", id}})
+	result, err := collection.DeleteOne(context.TODO(), bson.D{{"userid", id}})
 
 	if err != nil {
 		return err

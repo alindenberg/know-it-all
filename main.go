@@ -7,7 +7,8 @@ import (
 	mongo "github.com/alindenberg/know-it-all/database"
 	matchesController "github.com/alindenberg/know-it-all/domain/matches/controller"
 	leaguesController "github.com/alindenberg/know-it-all/domain/leagues/controller"
-	groupsController "github.com/alindenberg/know-it-all/domain/groups/controller"
+	usersController "github.com/alindenberg/know-it-all/domain/users/controller"
+	betsController "github.com/alindenberg/know-it-all/domain/bets/controller"
 )
 
 func main() {
@@ -31,11 +32,18 @@ func addRouteHandlers() {
 	r.POST("/leagues", leaguesController.CreateLeague)
 	r.DELETE("/leagues/:id", leaguesController.DeleteLeague)
 
-	// Group Routes
-	r.GET("/groups/:id", groupsController.GetGroup)
-	r.GET("/groups", groupsController.GetAllGroups)
-	r.POST("/groups", groupsController.CreateGroup)
-	r.DELETE("/groups/:id", groupsController.DeleteGroup)
+	// User Routes
+	r.GET("/users/:id", usersController.GetUser)
+	r.GET("/users", usersController.GetAllUsers)
+	r.POST("/users", usersController.CreateUser)
+	r.DELETE("/users/:id", usersController.DeleteUser)
+
+	// Bet Routes
+	// r.GET("/users/:id/bets/:betId", betsController.GetBet)
+	r.GET("/users/:id/bets", betsController.GetAllBets)
+	r.POST("/users/:id/bets", betsController.CreateBet)
+	r.DELETE("/users/:id/bets/:betId", betsController.DeleteBet)
+
 
 	// Register routes
 	http.Handle("/", r)

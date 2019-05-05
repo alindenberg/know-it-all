@@ -21,3 +21,8 @@ func Create(w http.ResponseWriter, id string) {
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(CreateResponse{id})
 }
+
+func Delete(w http.ResponseWriter) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusNoContent)
+}

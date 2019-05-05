@@ -1,19 +1,19 @@
-package groupcontroller
+package usercontroller
 
 import (
 	"net/http"
 	"encoding/json"
 	"github.com/julienschmidt/httprouter"
-	GroupService "github.com/alindenberg/know-it-all/domain/groups/service"
+	UserService "github.com/alindenberg/know-it-all/domain/users/service"
 	SharedResponses "github.com/alindenberg/know-it-all/domain/shared/responses"
 )
 
-var COLLECTION = "groups"
+var COLLECTION = "users"
 
-func GetGroup(w http.ResponseWriter, req *http.Request, params httprouter.Params) {
+func GetUser(w http.ResponseWriter, req *http.Request, params httprouter.Params) {
 	id := params.ByName("id")
 
-	result, err := GroupService.GetGroup(id)
+	result, err := UserService.GetUser(id)
 	if err != nil {
 		SharedResponses.Error(w, err)
 		return
@@ -24,8 +24,8 @@ func GetGroup(w http.ResponseWriter, req *http.Request, params httprouter.Params
 	json.NewEncoder(w).Encode(result)
 }
 
-func GetAllGroups(w http.ResponseWriter, req *http.Request, _ httprouter.Params) {
-	results, err := GroupService.GetAllGroups()
+func GetAllUsers(w http.ResponseWriter, req *http.Request, _ httprouter.Params) {
+	results, err := UserService.GetAllUsers()
 	if err != nil {
 		SharedResponses.Error(w, err)
 		return
@@ -35,8 +35,8 @@ func GetAllGroups(w http.ResponseWriter, req *http.Request, _ httprouter.Params)
 	json.NewEncoder(w).Encode(results)
 }
 
-func CreateGroup(w http.ResponseWriter, req *http.Request, _ httprouter.Params) {
-	id, err := GroupService.CreateGroup(req.Body)
+func CreateUser(w http.ResponseWriter, req *http.Request, _ httprouter.Params) {
+	id, err := UserService.CreateUser(req.Body)
 	if err != nil {
 		SharedResponses.Error(w, err)
 		return
@@ -45,10 +45,10 @@ func CreateGroup(w http.ResponseWriter, req *http.Request, _ httprouter.Params) 
 	SharedResponses.Create(w, id)
 }
 
-func DeleteGroup(w http.ResponseWriter, req *http.Request, params httprouter.Params) {
+func DeleteUser(w http.ResponseWriter, req *http.Request, params httprouter.Params) {
 	id := params.ByName("id")
 
-	err := GroupService.DeleteGroup(id)
+	err := UserService.DeleteUser(id)
 	if err != nil {
 		SharedResponses.Error(w, err)
 		return
@@ -56,4 +56,4 @@ func DeleteGroup(w http.ResponseWriter, req *http.Request, params httprouter.Par
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusNoContent)
-} 
+}

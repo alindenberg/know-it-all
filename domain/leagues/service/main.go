@@ -17,7 +17,7 @@ func GetLeague(id string) (*LeagueModels.League, error) {
 	}
 
 	return LeagueRepository.GetLeague(id)
-} 
+}
 
 func GetAllLeagues() ([]*LeagueModels.League, error) {
 	return LeagueRepository.GetAllLeagues()

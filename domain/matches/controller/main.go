@@ -13,7 +13,7 @@ var COLLECTION = "matches"
 func GetMatch(w http.ResponseWriter, req *http.Request, params httprouter.Params) {
 	id := params.ByName("id")
 
-	result, err := MatchService.GetMatch(id) 
+	result, err := MatchService.GetMatch(id)
 
 	if err != nil {
 		SharedResponses.Error(w, err)
@@ -27,7 +27,7 @@ func GetMatch(w http.ResponseWriter, req *http.Request, params httprouter.Params
 
 func GetAllMatches(w http.ResponseWriter, req *http.Request, _ httprouter.Params) {
 	result, err := MatchService.GetAllMatches()
-	
+
 	if err != nil {
 		SharedResponses.Error(w, err)
 		return
@@ -39,7 +39,7 @@ func GetAllMatches(w http.ResponseWriter, req *http.Request, _ httprouter.Params
 }
 
 func CreateMatch(w http.ResponseWriter, req *http.Request, _ httprouter.Params) {
-	
+
 	id, err := MatchService.CreateMatch(req.Body)
 	if err != nil {
 		SharedResponses.Error(w, err)
@@ -58,6 +58,5 @@ func DeleteMatch(w http.ResponseWriter, req *http.Request, params httprouter.Par
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusNoContent)
-} 
+	SharedResponses.Delete(w)
+}

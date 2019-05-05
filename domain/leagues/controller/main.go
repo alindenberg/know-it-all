@@ -52,6 +52,5 @@ func DeleteLeague(w http.ResponseWriter, req *http.Request, params httprouter.Pa
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusNoContent)
-} 
+	SharedResponses.Delete(w)
+}

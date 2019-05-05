@@ -47,10 +47,7 @@ func GetLeague(id string) (*LeagueModels.League, error) {
 
 func CreateLeague(league LeagueModels.League) error {
 	_, err := mongo.Db.Collection(COLLECTION).InsertOne(context.TODO(), league)
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }
 
 func DeleteLeague(id string) error {
