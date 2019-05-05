@@ -2,10 +2,13 @@ package betservice
 
 import (
 	"io"
+	"fmt"
+	"errors"
 	"encoding/json"
 	"github.com/google/uuid"
 	BetModels "github.com/alindenberg/know-it-all/domain/bets/models"
 	BetRepository "github.com/alindenberg/know-it-all/domain/bets/repository"
+	MatchService "github.com/alindenberg/know-it-all/domain/matches/service"
 )
 
 // func GetBet(id string, userId string) (*BetModels.Bet, error) {
@@ -62,5 +65,11 @@ func DeleteBet(id string, userId string) error {
 }
 
 func validateBet(bet *BetModels.Bet) error {
+	// validate matchId corresponds to existing match
+	_, err := MatchService.GetMatch(bet.MatchID)
+	if err != nil {
+		return errors.New(fmt.Sprintf("No match found with id: %s", bet.MatchID))
+	}
+
 	return nil
 }

@@ -24,16 +24,16 @@ func GetAllBets(userId string) ([]*BetModels.Bet, error) {
 	return userBet.Bets, nil
 }
 
-func GetBet(id string) (*BetModels.Bet, error) {
-	collection := mongo.Db.Collection(COLLECTION)
-	result := BetModels.Bet{}
-	err := collection.FindOne(context.TODO(), bson.D{{"betid", id}}).Decode(&result)
-	if err != nil {
-		return nil, err
-	}
-
-	return &result, nil
-}
+// func GetBet(id string) (*BetModels.Bet, error) {
+// 	collection := mongo.Db.Collection(COLLECTION)
+// 	result := BetModels.Bet{}
+// 	err := collection.FindOne(context.TODO(), bson.D{{"betid", id}}).Decode(&result)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+//
+// 	return &result, nil
+// }
 
 func CreateBet(bet BetModels.Bet, userId string) error {
 	collection := mongo.Db.Collection(COLLECTION)
