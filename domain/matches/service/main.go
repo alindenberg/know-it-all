@@ -6,6 +6,7 @@ import (
 	"github.com/google/uuid"
 	MatchModels "github.com/alindenberg/know-it-all/domain/matches/models"
 	MatchRepository "github.com/alindenberg/know-it-all/domain/matches/repository"
+	BetService "github.com/alindenberg/know-it-all/domain/bets/service"
 )
 
 func GetMatch(id string) (*MatchModels.Match, error) {
@@ -15,7 +16,7 @@ func GetMatch(id string) (*MatchModels.Match, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	return MatchRepository.GetMatch(id)
 }
 
@@ -35,7 +36,7 @@ func CreateMatch(jsonBody io.ReadCloser) (string, error) {
 
 	id := uuid.New().String()
 	match.MatchID = id
-	
+
 	return id, MatchRepository.CreateMatch(match)
 }
 
@@ -48,4 +49,20 @@ func DeleteMatch(id string) error {
 	}
 
 	return MatchRepository.DeleteMatch(id)
+}
+
+func ResolveMatch(id string, jsonBody io.ReadCloser) error {
+	var matchResult MatchModels.MatchResult
+
+	decoder := json.NewDecoder(jsonBody)
+	err := decoder.Decode(&matchResult)
+	if err != nil {
+		return err
+	}
+
+	err = MatchRepository.ResolveMatch(id, &matchResult)
+	if err != nil {
+		return err
+	}
+	return BetService.ResolveBets(id, &matchResult)
 }

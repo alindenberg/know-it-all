@@ -3,12 +3,14 @@ package betservice
 import (
 	"io"
 	"fmt"
+	"log"
 	"errors"
 	"encoding/json"
 	"github.com/google/uuid"
 	BetModels "github.com/alindenberg/know-it-all/domain/bets/models"
 	BetRepository "github.com/alindenberg/know-it-all/domain/bets/repository"
 	MatchService "github.com/alindenberg/know-it-all/domain/matches/service"
+	MatchModels "github.com/alindenberg/know-it-all/domain/matches/models"
 )
 
 // func GetBet(id string, userId string) (*BetModels.Bet, error) {
@@ -23,7 +25,7 @@ import (
 // }
 
 func GetAllBets(userId string) ([]*BetModels.Bet, error) {
-	return BetRepository.GetAllBets(userId)
+	return BetRepository.GetAllBetsForUser(userId)
 }
 
 func CreateBet(jsonBody io.ReadCloser, userId string) (string, error) {
@@ -62,6 +64,28 @@ func DeleteBet(id string, userId string) error {
 	}
 
 	return BetRepository.DeleteBet(id, userId)
+}
+
+func ResolveBets(matchId string, result *MatchModels.MatchResult) error {
+	bets, err := BetRepository.GetAllBetsForMatch(matchId)
+	if err != nil {
+		return err
+	}
+
+	for _, bet := range bets {
+		switch bet.Selection {
+		case BetModels.HomeTeam:
+			if(result.HomeScore > result.AwayScore) {
+				log.Println("About to repo resolve bet")
+				return BetRepository.ResolveBet(bet.BetID, true)
+			}
+			break
+		default:
+			break
+		}
+	}
+
+	return nil
 }
 
 func validateBet(bet *BetModels.Bet) error {

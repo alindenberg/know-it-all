@@ -24,6 +24,7 @@ func addRouteHandlers() {
 	r.GET("/matches/:id", matchesController.GetMatch)
 	r.GET("/matches", matchesController.GetAllMatches)
 	r.POST("/matches", matchesController.CreateMatch)
+	r.POST("/matches/:id/resolve", matchesController.ResolveMatch)
 	r.DELETE("/matches/:id", matchesController.DeleteMatch)
 
 	// League Routes

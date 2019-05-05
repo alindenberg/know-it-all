@@ -2,6 +2,7 @@ package betrepository
 
 import (
 	"fmt"
+	"log"
 	"strings"
 	"errors"
 	"context"
@@ -12,11 +13,23 @@ import (
 
 var COLLECTION = "userbets"
 
-func GetAllBets(userId string) ([]*BetModels.Bet, error) {
+func GetAllBetsForUser(userId string) ([]*BetModels.Bet, error) {
 	collection := mongo.Db.Collection(COLLECTION)
 
 	userBet := BetModels.UserBets{}
 	err := collection.FindOne(context.TODO(), bson.D{{"userid", userId}}).Decode(&userBet)
+	if err != nil {
+		return nil, err
+	}
+
+	return userBet.Bets, nil
+}
+
+func GetAllBetsForMatch(matchId string) ([]*BetModels.Bet, error) {
+	collection := mongo.Db.Collection(COLLECTION)
+
+	userBet := BetModels.UserBets{}
+	err := collection.FindOne(context.TODO(), bson.D{{"matchid", matchId}}).Decode(&userBet)
 	if err != nil {
 		return nil, err
 	}
@@ -96,4 +109,17 @@ func DeleteBet(id string, userId string) error {
 	}
 
 	return errors.New(fmt.Sprintf("Bet %s not found", id))
+}
+
+func ResolveBet(id string, won bool) error {
+	log.Println("repo resolving bet")
+	update := bson.D{
+		{"$set", bson.D{
+			{"won", won},
+			{"isresolved", true},
+		}},
+	}
+	_, err := mongo.Db.Collection(COLLECTION).UpdateOne(context.TODO(), bson.D{{"betid", id}}, update)
+
+	return err
 }

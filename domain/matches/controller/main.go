@@ -49,6 +49,18 @@ func CreateMatch(w http.ResponseWriter, req *http.Request, _ httprouter.Params) 
 	SharedResponses.Create(w, id)
 }
 
+func ResolveMatch(w http.ResponseWriter, req *http.Request, params httprouter.Params) {
+	id := params.ByName("id")
+
+	err := MatchService.ResolveMatch(id, req.Body)
+	if err != nil {
+		SharedResponses.Error(w, err)
+		return
+	}
+
+	SharedResponses.NoContent(w)
+}
+
 func DeleteMatch(w http.ResponseWriter, req *http.Request, params httprouter.Params) {
 	id := params.ByName("id")
 
@@ -58,5 +70,5 @@ func DeleteMatch(w http.ResponseWriter, req *http.Request, params httprouter.Par
 		return
 	}
 
-	SharedResponses.Delete(w)
+	SharedResponses.NoContent(w)
 }

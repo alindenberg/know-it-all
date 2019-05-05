@@ -66,3 +66,15 @@ func DeleteMatch(id string) error {
 	}
 	return nil
 }
+
+func ResolveMatch(id string, matchResult *MatchModels.MatchResult) error {
+	update := bson.D{
+		{"$set", bson.D{
+			{"homescore", matchResult.HomeScore},
+			{"awayscore", matchResult.AwayScore},
+		}},
+	}
+	_, err := mongo.Db.Collection(COLLECTION).UpdateOne(context.TODO(), bson.D{{"matchid", id}}, update)
+
+	return err
+}

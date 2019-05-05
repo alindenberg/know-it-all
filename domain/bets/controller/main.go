@@ -60,5 +60,5 @@ func DeleteBet(w http.ResponseWriter, req *http.Request, params httprouter.Param
 		return
 	}
 
-	SharedResponses.Delete(w)
+	SharedResponses.NoContent(w)
 }

@@ -4,7 +4,12 @@ type Match struct {
 	MatchID  string
 	HomeTeam string
 	AwayTeam string
-	Date     string
-	// Home = 0, Away = 1
-	Winner string
+	HomeScore	int
+	AwayScore int
+	Date string
+}
+
+type MatchResult struct {
+	HomeScore	int
+	AwayScore	int
 }
