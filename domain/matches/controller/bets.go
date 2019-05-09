@@ -1,14 +1,12 @@
-package betcontroller
+package matchcontroller
 
 import (
 	"net/http"
 	"encoding/json"
 	"github.com/julienschmidt/httprouter"
-	BetService "github.com/alindenberg/know-it-all/domain/bets/service"
+	BetService "github.com/alindenberg/know-it-all/domain/matches/service"
 	SharedResponses "github.com/alindenberg/know-it-all/domain/shared/responses"
 )
-
-var COLLECTION = "bets"
 
 // func GetBet(w http.ResponseWriter, req *http.Request, params httprouter.Params) {
 // 	id := params.ByName("betId")

@@ -8,7 +8,7 @@ import (
 	matchesController "github.com/alindenberg/know-it-all/domain/matches/controller"
 	leaguesController "github.com/alindenberg/know-it-all/domain/leagues/controller"
 	usersController "github.com/alindenberg/know-it-all/domain/users/controller"
-	betsController "github.com/alindenberg/know-it-all/domain/bets/controller"
+	// betsController "github.com/alindenberg/know-it-all/domain/bets/controller"
 )
 
 func main() {
@@ -40,10 +40,10 @@ func addRouteHandlers() {
 	r.DELETE("/users/:id", usersController.DeleteUser)
 
 	// Bet Routes
-	r.GET("/matches/:id/bets", betsController.GetAllBetsForMatch)
-	r.GET("/users/:id/bets", betsController.GetAllBetsForUser)
-	r.POST("/users/:id/bets", betsController.CreateBet)
-	r.DELETE("/bets/:betId", betsController.DeleteBet)
+	r.GET("/matches/:id/bets", matchesController.GetAllBetsForMatch)
+	r.GET("/users/:id/bets", matchesController.GetAllBetsForUser)
+	r.POST("/users/:id/bets", matchesController.CreateBet)
+	r.DELETE("/bets/:betId", matchesController.DeleteBet)
 
 	// Register routes
 	http.Handle("/", r)

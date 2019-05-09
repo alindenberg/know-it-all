@@ -1,4 +1,4 @@
-package betmodels
+package matchmodels
 
 type Bet struct {
 	BetID	string

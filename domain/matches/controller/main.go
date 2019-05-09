@@ -1,4 +1,4 @@
-package matchescontroller
+package matchcontroller
 
 import (
 	"encoding/json"
@@ -7,8 +7,6 @@ import (
 	MatchService "github.com/alindenberg/know-it-all/domain/matches/service"
 	SharedResponses "github.com/alindenberg/know-it-all/domain/shared/responses"
 )
-
-var COLLECTION = "matches"
 
 func GetMatch(w http.ResponseWriter, req *http.Request, params httprouter.Params) {
 	id := params.ByName("id")

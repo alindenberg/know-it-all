@@ -1,4 +1,4 @@
-package matchesrepository
+package matchrepository
 
 import (
 	"fmt"

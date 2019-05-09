@@ -1,14 +1,12 @@
-package betservice
+package matchservice
 
 import (
 	"io"
 	"log"
 	"encoding/json"
 	"github.com/google/uuid"
-	BetModels "github.com/alindenberg/know-it-all/domain/bets/models"
-	BetRepository "github.com/alindenberg/know-it-all/domain/bets/repository"
-	// MatchService "github.com/alindenberg/know-it-all/domain/matches/service"
-	MatchModels "github.com/alindenberg/know-it-all/domain/matches/models"
+	Models "github.com/alindenberg/know-it-all/domain/matches/models"
+	Repository "github.com/alindenberg/know-it-all/domain/matches/repository"
 )
 
 // func GetBet(id string, userId string) (*BetModels.Bet, error) {
@@ -22,16 +20,16 @@ import (
 // 	return BetRepository.GetBet(id)
 // }
 
-func GetAllBetsForUser(userId string) ([]*BetModels.Bet, error) {
-	return BetRepository.GetAllBetsForUser(userId)
+func GetAllBetsForUser(userId string) ([]*Models.Bet, error) {
+	return Repository.GetAllBetsForUser(userId)
 }
 
-func GetAllBetsForMatch(matchId string) ([]*BetModels.Bet, error) {
-	return BetRepository.GetAllBetsForMatch(matchId)
+func GetAllBetsForMatch(matchId string) ([]*Models.Bet, error) {
+	return Repository.GetAllBetsForMatch(matchId)
 }
 
 func CreateBet(jsonBody io.ReadCloser, userId string) (string, error) {
-	var bet BetModels.Bet
+	var bet Models.Bet
 	decoder := json.NewDecoder(jsonBody)
 	err := decoder.Decode(&bet)
 	if err != nil {
@@ -49,7 +47,7 @@ func CreateBet(jsonBody io.ReadCloser, userId string) (string, error) {
 		return "", err
 	}
 
-	return id, BetRepository.CreateBet(bet, userId)
+	return id, Repository.CreateBet(bet, userId)
 }
 
 func DeleteBet(id string, userId string) error {
@@ -65,43 +63,45 @@ func DeleteBet(id string, userId string) error {
 		return err
 	}
 
-	return BetRepository.DeleteBet(id, userId)
+	return Repository.DeleteBet(id, userId)
 }
 
-func ResolveBets(matchId string, result *MatchModels.MatchResult) error {
-	bets, err := BetRepository.GetAllBetsForMatch(matchId)
+func ResolveBets(matchId string, result *Models.MatchResult) error {
+	bets, err := Repository.GetAllBetsForMatch(matchId)
 	if err != nil {
 		return err
 	}
 
+	log.Println(bets)
 	for _, bet := range bets {
+		wonBet := false
+
 		switch bet.Selection {
-		case BetModels.HomeTeam:
+		case Models.HomeTeam:
 			if(result.HomeScore > result.AwayScore) {
-				log.Println("About to repo resolve bet")
-				return BetRepository.ResolveBet(bet.BetID, true)
+				wonBet = true
 			} else {
-				return BetRepository.ResolveBet(bet.BetID, false)
+				wonBet = false
 			}
+			Repository.ResolveBet(bet.BetID, wonBet)
 			break
-		case BetModels.AwayTeam:
+		case Models.AwayTeam:
 			if(result.HomeScore < result.AwayScore) {
-				log.Println("About to repo resolve bet")
-				return BetRepository.ResolveBet(bet.BetID, true)
+				wonBet = true
 			} else {
-				return BetRepository.ResolveBet(bet.BetID, false)
+				wonBet = false
 			}
+			Repository.ResolveBet(bet.BetID, wonBet)
 			break
-		case BetModels.Draw:
+		case Models.Draw:
 			if(result.HomeScore == result.AwayScore) {
-				log.Println("About to repo resolve bet")
-				return BetRepository.ResolveBet(bet.BetID, true)
+				wonBet = true
 			} else {
-				return BetRepository.ResolveBet(bet.BetID, false)
+				wonBet = false
 			}
+			Repository.ResolveBet(bet.BetID, wonBet)
 			break
 		default:
-			log.Println("No Selection made")
 			break
 		}
 	}
@@ -109,7 +109,7 @@ func ResolveBets(matchId string, result *MatchModels.MatchResult) error {
 	return nil
 }
 
-func validateBet(bet *BetModels.Bet) error {
+func validateBet(bet *Models.Bet) error {
 	// validate matchId corresponds to existing match
 	// _, err := MatchService.GetMatch(bet.MatchID)
 	// if err != nil {

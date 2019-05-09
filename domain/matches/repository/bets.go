@@ -1,4 +1,4 @@
-package betrepository
+package matchrepository
 
 import (
 	"fmt"
@@ -8,13 +8,13 @@ import (
 	"github.com/mongodb/mongo-go-driver/bson"
 	"github.com/mongodb/mongo-go-driver/mongo/options"
 	mongo "github.com/alindenberg/know-it-all/database"
-	BetModels "github.com/alindenberg/know-it-all/domain/bets/models"
+	BetModels "github.com/alindenberg/know-it-all/domain/matches/models"
 )
 
-var COLLECTION = "bets"
+var BETS_COLLECTION = "bets"
 
 func GetAllBetsForUser(userId string) ([]*BetModels.Bet, error) {
-	collection := mongo.GetDbClient().Collection(COLLECTION)
+	collection := mongo.GetDbClient().Collection(BETS_COLLECTION)
 
 	cur, err := collection.Find(context.TODO(), bson.D{{"userid", userId}}, options.Find())
 	if err != nil {
@@ -37,7 +37,7 @@ func GetAllBetsForUser(userId string) ([]*BetModels.Bet, error) {
 }
 
 func GetAllBetsForMatch(matchId string) ([]*BetModels.Bet, error) {
-	collection := mongo.GetDbClient().Collection(COLLECTION)
+	collection := mongo.GetDbClient().Collection(BETS_COLLECTION)
 
 	cur, err := collection.Find(context.TODO(), bson.D{{"matchid", matchId}}, options.Find())
 	if err != nil {
@@ -71,14 +71,14 @@ func GetAllBetsForMatch(matchId string) ([]*BetModels.Bet, error) {
 // }
 
 func CreateBet(bet BetModels.Bet, userId string) error {
-	collection := mongo.GetDbClient().Collection(COLLECTION)
+	collection := mongo.GetDbClient().Collection(BETS_COLLECTION)
 
 	_, err := collection.InsertOne(context.Background(), bet)
 	return err
 }
 
 func DeleteBet(betId string, userId string) error {
-	collection := mongo.GetDbClient().Collection(COLLECTION)
+	collection := mongo.GetDbClient().Collection(BETS_COLLECTION)
 	result, err := collection.DeleteOne(context.TODO(), bson.D{{"betid", betId}})
 
 	if err != nil {
@@ -92,8 +92,8 @@ func DeleteBet(betId string, userId string) error {
 }
 
 func ResolveBet(id string, won bool) error {
-	collection := mongo.GetDbClient().Collection(COLLECTION)
-	log.Println("repo resolving bet")
+	collection := mongo.GetDbClient().Collection(BETS_COLLECTION)
+
 	update := bson.D{
 		{"$set", bson.D{
 			{"won", won},

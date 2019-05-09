@@ -6,7 +6,6 @@ import (
 	"github.com/google/uuid"
 	MatchModels "github.com/alindenberg/know-it-all/domain/matches/models"
 	MatchRepository "github.com/alindenberg/know-it-all/domain/matches/repository"
-	BetService "github.com/alindenberg/know-it-all/domain/bets/service"
 )
 
 func GetMatch(id string) (*MatchModels.Match, error) {
@@ -64,5 +63,5 @@ func ResolveMatch(id string, jsonBody io.ReadCloser) error {
 	if err != nil {
 		return err
 	}
-	return BetService.ResolveBets(id, &matchResult)
+	return ResolveBets(id, &matchResult)
 }
