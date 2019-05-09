@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	Db *mongo.Database
+	db *mongo.Database
 )
 
 func InitDatabase() {
@@ -28,5 +28,9 @@ func InitDatabase() {
 
 	log.Println("Connected to MongoDB!")
 
-	Db = client.Database("knowitall")
+	db = client.Database("knowitall")
+}
+
+func GetDbClient() *mongo.Database {
+	return db
 }

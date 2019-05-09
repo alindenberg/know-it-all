@@ -13,7 +13,7 @@ import (
 var COLLECTION = "users"
 
 func GetAllUsers() ([]*UserModels.User, error) {
-	collection := mongo.Db.Collection(COLLECTION)
+	collection := mongo.GetDbClient().Collection(COLLECTION)
 	cur, err := collection.Find(context.TODO(), bson.D{}, options.Find())
 	if err != nil {
 		return nil, err
@@ -35,7 +35,7 @@ func GetAllUsers() ([]*UserModels.User, error) {
 }
 
 func GetUser(id string) (*UserModels.User, error) {
-	collection := mongo.Db.Collection(COLLECTION)
+	collection := mongo.GetDbClient().Collection(COLLECTION)
 	result := UserModels.User{}
 	err := collection.FindOne(context.TODO(), bson.D{{"userid", id}}).Decode(&result)
 	if err != nil {
@@ -46,14 +46,14 @@ func GetUser(id string) (*UserModels.User, error) {
 }
 
 func CreateUser(user UserModels.User) error {
-	collection := mongo.Db.Collection(COLLECTION)
+	collection := mongo.GetDbClient().Collection(COLLECTION)
 	_, err := collection.InsertOne(context.TODO(), user)
 
 	return err
 }
 
 func DeleteUser(id string) error {
-	collection := mongo.Db.Collection(COLLECTION)
+	collection := mongo.GetDbClient().Collection(COLLECTION)
 	result, err := collection.DeleteOne(context.TODO(), bson.D{{"userid", id}})
 
 	if err != nil {

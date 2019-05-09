@@ -13,7 +13,7 @@ import (
 var COLLECTION = "leagues"
 
 func GetAllLeagues() ([]*LeagueModels.League, error) {
-	collection := mongo.Db.Collection(COLLECTION)
+	collection := mongo.GetDbClient().Collection(COLLECTION)
 	cur, err := collection.Find(context.TODO(), bson.D{}, options.Find())
 	if err != nil {
 		return nil, err
@@ -35,7 +35,7 @@ func GetAllLeagues() ([]*LeagueModels.League, error) {
 }
 
 func GetLeague(id string) (*LeagueModels.League, error) {
-	collection := mongo.Db.Collection(COLLECTION)
+	collection := mongo.GetDbClient().Collection(COLLECTION)
 	result := LeagueModels.League{}
 	err := collection.FindOne(context.TODO(), bson.D{{"leagueid", id}}).Decode(&result)
 	if err != nil {
@@ -46,12 +46,12 @@ func GetLeague(id string) (*LeagueModels.League, error) {
 }
 
 func CreateLeague(league LeagueModels.League) error {
-	_, err := mongo.Db.Collection(COLLECTION).InsertOne(context.TODO(), league)
+	_, err := mongo.GetDbClient().Collection(COLLECTION).InsertOne(context.TODO(), league)
 	return err
 }
 
 func DeleteLeague(id string) error {
-	collection := mongo.Db.Collection(COLLECTION)
+	collection := mongo.GetDbClient().Collection(COLLECTION)
 	result, err := collection.DeleteOne(context.TODO(), bson.D{{"leagueid", id}})
 
 	if err != nil {

@@ -2,14 +2,12 @@ package betservice
 
 import (
 	"io"
-	"fmt"
 	"log"
-	"errors"
 	"encoding/json"
 	"github.com/google/uuid"
 	BetModels "github.com/alindenberg/know-it-all/domain/bets/models"
 	BetRepository "github.com/alindenberg/know-it-all/domain/bets/repository"
-	MatchService "github.com/alindenberg/know-it-all/domain/matches/service"
+	// MatchService "github.com/alindenberg/know-it-all/domain/matches/service"
 	MatchModels "github.com/alindenberg/know-it-all/domain/matches/models"
 )
 
@@ -24,8 +22,12 @@ import (
 // 	return BetRepository.GetBet(id)
 // }
 
-func GetAllBets(userId string) ([]*BetModels.Bet, error) {
+func GetAllBetsForUser(userId string) ([]*BetModels.Bet, error) {
 	return BetRepository.GetAllBetsForUser(userId)
+}
+
+func GetAllBetsForMatch(matchId string) ([]*BetModels.Bet, error) {
+	return BetRepository.GetAllBetsForMatch(matchId)
 }
 
 func CreateBet(jsonBody io.ReadCloser, userId string) (string, error) {
@@ -78,9 +80,28 @@ func ResolveBets(matchId string, result *MatchModels.MatchResult) error {
 			if(result.HomeScore > result.AwayScore) {
 				log.Println("About to repo resolve bet")
 				return BetRepository.ResolveBet(bet.BetID, true)
+			} else {
+				return BetRepository.ResolveBet(bet.BetID, false)
+			}
+			break
+		case BetModels.AwayTeam:
+			if(result.HomeScore < result.AwayScore) {
+				log.Println("About to repo resolve bet")
+				return BetRepository.ResolveBet(bet.BetID, true)
+			} else {
+				return BetRepository.ResolveBet(bet.BetID, false)
+			}
+			break
+		case BetModels.Draw:
+			if(result.HomeScore == result.AwayScore) {
+				log.Println("About to repo resolve bet")
+				return BetRepository.ResolveBet(bet.BetID, true)
+			} else {
+				return BetRepository.ResolveBet(bet.BetID, false)
 			}
 			break
 		default:
+			log.Println("No Selection made")
 			break
 		}
 	}
@@ -90,10 +111,10 @@ func ResolveBets(matchId string, result *MatchModels.MatchResult) error {
 
 func validateBet(bet *BetModels.Bet) error {
 	// validate matchId corresponds to existing match
-	_, err := MatchService.GetMatch(bet.MatchID)
-	if err != nil {
-		return errors.New(fmt.Sprintf("No match found with id: %s", bet.MatchID))
-	}
+	// _, err := MatchService.GetMatch(bet.MatchID)
+	// if err != nil {
+	// 	return errors.New(fmt.Sprintf("No match found with id: %s", bet.MatchID))
+	// }
 
 	return nil
 }

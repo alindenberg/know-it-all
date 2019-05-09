@@ -40,11 +40,10 @@ func addRouteHandlers() {
 	r.DELETE("/users/:id", usersController.DeleteUser)
 
 	// Bet Routes
-	// r.GET("/users/:id/bets/:betId", betsController.GetBet)
-	r.GET("/users/:id/bets", betsController.GetAllBets)
+	r.GET("/matches/:id/bets", betsController.GetAllBetsForMatch)
+	r.GET("/users/:id/bets", betsController.GetAllBetsForUser)
 	r.POST("/users/:id/bets", betsController.CreateBet)
-	r.DELETE("/users/:id/bets/:betId", betsController.DeleteBet)
-
+	r.DELETE("/bets/:betId", betsController.DeleteBet)
 
 	// Register routes
 	http.Handle("/", r)

@@ -13,7 +13,7 @@ import (
 var COLLECTION = "matches"
 
 func GetAllMatches() ([]*MatchModels.Match, error) {
-	collection := mongo.Db.Collection(COLLECTION)
+	collection := mongo.GetDbClient().Collection(COLLECTION)
 	cur, err := collection.Find(context.TODO(), bson.D{}, options.Find())
 	if err != nil {
 		return nil, err
@@ -35,7 +35,7 @@ func GetAllMatches() ([]*MatchModels.Match, error) {
 }
 
 func GetMatch(id string) (*MatchModels.Match, error) {
-	var collection = mongo.Db.Collection(COLLECTION)
+	var collection = mongo.GetDbClient().Collection(COLLECTION)
 	result := MatchModels.Match{}
 	err := collection.FindOne(context.TODO(), bson.D{{"matchid", id}}).Decode(&result)
 	if err != nil {
@@ -46,7 +46,7 @@ func GetMatch(id string) (*MatchModels.Match, error) {
 }
 
 func CreateMatch(match MatchModels.Match) error {
-	_, err := mongo.Db.Collection(COLLECTION).InsertOne(context.TODO(), match)
+	_, err := mongo.GetDbClient().Collection(COLLECTION).InsertOne(context.TODO(), match)
 	if err != nil {
 		return err
 	}
@@ -54,7 +54,7 @@ func CreateMatch(match MatchModels.Match) error {
 }
 
 func DeleteMatch(id string) error {
-	collection := mongo.Db.Collection(COLLECTION)
+	collection := mongo.GetDbClient().Collection(COLLECTION)
 	result, err := collection.DeleteOne(context.TODO(), bson.D{{"matchid", id}})
 
 	if err != nil {
@@ -74,7 +74,7 @@ func ResolveMatch(id string, matchResult *MatchModels.MatchResult) error {
 			{"awayscore", matchResult.AwayScore},
 		}},
 	}
-	_, err := mongo.Db.Collection(COLLECTION).UpdateOne(context.TODO(), bson.D{{"matchid", id}}, update)
+	_, err := mongo.GetDbClient().Collection(COLLECTION).UpdateOne(context.TODO(), bson.D{{"matchid", id}}, update)
 
 	return err
 }

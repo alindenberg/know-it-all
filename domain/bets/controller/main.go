@@ -25,10 +25,23 @@ var COLLECTION = "bets"
 // 	json.NewEncoder(w).Encode(result)
 // }
 
-func GetAllBets(w http.ResponseWriter, req *http.Request, params httprouter.Params) {
+func GetAllBetsForUser(w http.ResponseWriter, req *http.Request, params httprouter.Params) {
 	userId := params.ByName("id")
 
-	results, err := BetService.GetAllBets(userId)
+	results, err := BetService.GetAllBetsForUser(userId)
+	if err != nil {
+		SharedResponses.Error(w, err)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(results)
+}
+
+func GetAllBetsForMatch(w http.ResponseWriter, req *http.Request, params httprouter.Params) {
+	matchId := params.ByName("id")
+
+	results, err := BetService.GetAllBetsForMatch(matchId)
 	if err != nil {
 		SharedResponses.Error(w, err)
 		return
