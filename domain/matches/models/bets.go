@@ -4,7 +4,7 @@ type Bet struct {
 	BetID	string
 	MatchID	string
 	UserID string
-	Selection TeamSelection
+	Prediction TeamSelection
 	IsResolved bool
 	Won bool
 }

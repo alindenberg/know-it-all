@@ -2,7 +2,6 @@ package matchrepository
 
 import (
 	"fmt"
-	"log"
 	"errors"
 	"context"
 	"github.com/mongodb/mongo-go-driver/bson"
