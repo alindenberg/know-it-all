@@ -2,6 +2,8 @@ package leagueservice
 
 import (
 	"io"
+	"fmt"
+	"errors"
 	"encoding/json"
 	"github.com/google/uuid"
 	LeagueModels "github.com/alindenberg/know-it-all/domain/leagues/models"
@@ -31,10 +33,13 @@ func CreateLeague(jsonBody io.ReadCloser) (string, error) {
 		return "", err
 	}
 
-	// TODO: Validation
-
 	id := uuid.New().String()
 	league.LeagueID = id
+
+	err = validateLeague(&league)
+	if err != nil {
+		return "", err
+	}
 
 	return id, LeagueRepository.CreateLeague(league)
 }
@@ -48,4 +53,25 @@ func DeleteLeague(id string) error {
 	}
 
 	return LeagueRepository.DeleteLeague(id)
+}
+
+func validateLeague(league *LeagueModels.League) error {
+	_, err := uuid.Parse(league.LeagueID)
+	if err != nil {
+		return errors.New(fmt.Sprintf("LeagueId : ", err))
+	}
+
+	if len(league.Name) > 25 {
+		return errors.New(fmt.Sprintf("League name may not be longer than 25 characters"))
+	}
+
+	if len(league.Country) > 25 {
+		return errors.New(fmt.Sprintf("League country name may not be longer than 25 characters. Use abbreviation if necessary."))
+	}
+
+	if league.Division <= 0 {
+		return errors.New(fmt.Sprintf("Division must be an integer greater than 0"))
+	}
+
+	return nil
 }
