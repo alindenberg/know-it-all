@@ -1,5 +1,9 @@
 package matchmodels
 
+type BetRequest struct {
+	MatchID string
+	Prediction TeamSelection
+}
 type Bet struct {
 	BetID	string
 	MatchID	string

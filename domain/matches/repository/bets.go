@@ -69,10 +69,10 @@ func GetAllBetsForMatch(matchId string) ([]*BetModels.Bet, error) {
 // 	return &result, nil
 // }
 
-func CreateBet(bet BetModels.Bet, userId string) error {
+func CreateBet(bet *BetModels.Bet, userId string) error {
 	collection := mongo.GetDbClient().Collection(BETS_COLLECTION)
 
-	_, err := collection.InsertOne(context.Background(), bet)
+	_, err := collection.InsertOne(context.Background(), &bet)
 	return err
 }
 

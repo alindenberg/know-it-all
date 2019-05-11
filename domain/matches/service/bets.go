@@ -4,6 +4,7 @@ import (
 	"io"
 	"errors"
 	"fmt"
+	"time"
 	"encoding/json"
 	"github.com/google/uuid"
 	Models "github.com/alindenberg/know-it-all/domain/matches/models"
@@ -30,27 +31,22 @@ func GetAllBetsForMatch(matchId string) ([]*Models.Bet, error) {
 }
 
 func CreateBet(jsonBody io.ReadCloser, userId string) (string, error) {
-	var bet Models.Bet
+	var betRequest Models.BetRequest
 	decoder := json.NewDecoder(jsonBody)
-	err := decoder.Decode(&bet)
+	err := decoder.Decode(&betRequest)
 	if err != nil {
 		return "", err
 	}
 
-	// Assign a random id
-	id := uuid.New().String()
-	bet.BetID = id
-
-	// Assign userId from request path
-	bet.UserID = userId
+	bet := betFromRequest(userId, &betRequest)
 
 	// Validate group properties
-	err = validateBet(&bet)
+	err = validateBet(bet)
 	if err != nil {
 		return "", err
 	}
 
-	return id, Repository.CreateBet(bet, userId)
+	return bet.BetID, Repository.CreateBet(bet, userId)
 }
 
 func DeleteBet(id string, userId string) error {
@@ -114,25 +110,23 @@ func ResolveBets(matchId string, result *Models.MatchResult) error {
 func validateBet(bet *Models.Bet) error {
 	_, err := uuid.Parse(bet.MatchID)
 	if err != nil {
-		return err
+		return errors.New(fmt.Sprintf("MatchId : ", err))
 	}
 
 	_, err = uuid.Parse(bet.UserID)
 	if err != nil {
-		return err
+		return errors.New(fmt.Sprintf("UserId : ", err))
 	}
 
 	// validate matchId corresponds to existing match
-	_, err = GetMatch(bet.MatchID)
+	match, err := GetMatch(bet.MatchID)
 	if err != nil {
 		return errors.New(fmt.Sprintf("No corresponding Match found with id: %s", bet.MatchID))
 	}
 
-	// TODO : Once datetime functionality is on matches
-	// Validate the match isn't already resolved
-	// if match.Datetime >= time.Now()  {
-	// 	return errors.New(fmt.Sprintf("Can't place a bet on a match that's already begun or completed."))
-	// }
+	if match.Date.Before(time.Now().UTC()) {
+		return errors.New(fmt.Sprintf("May not place a bet on a Match that has begun or completed."))
+	}
 
 	// Validate valid result selection (TeamSelection enum)
 	if bet.Prediction != Models.HomeTeam && bet.Prediction != Models.AwayTeam && bet.Prediction != Models.Draw {
@@ -140,13 +134,9 @@ func validateBet(bet *Models.Bet) error {
 			fmt.Sprintf("Invalid Prediction. Must be choice of Home Team (0), Away Team (1), or Draw (2)"))
 	}
 
-	// Reset logic fields to be false if they were sent as true
-	if bet.IsResolved {
-		bet.IsResolved = false
-	}
-	if bet.Won {
-		bet.Won = false
-	}
-
 	return nil
+}
+
+func betFromRequest(userId string, betRequest *Models.BetRequest) *Models.Bet {
+	return &Models.Bet{uuid.New().String(), betRequest.MatchID, userId, betRequest.Prediction, false, false}
 }
