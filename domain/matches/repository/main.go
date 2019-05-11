@@ -45,8 +45,8 @@ func GetMatch(id string) (*MatchModels.Match, error) {
 	return &result, nil
 }
 
-func CreateMatch(match MatchModels.Match) error {
-	_, err := mongo.GetDbClient().Collection(COLLECTION).InsertOne(context.TODO(), match)
+func CreateMatch(match *MatchModels.Match) error {
+	_, err := mongo.GetDbClient().Collection(COLLECTION).InsertOne(context.TODO(), &match)
 	if err != nil {
 		return err
 	}
