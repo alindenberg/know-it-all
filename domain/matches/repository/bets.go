@@ -12,10 +12,10 @@ import (
 
 var BETS_COLLECTION = "bets"
 
-func GetAllBetsForUser(userId string) ([]*BetModels.Bet, error) {
+func GetAllBets() ([]*BetModels.Bet, error) {
 	collection := mongo.GetDbClient().Collection(BETS_COLLECTION)
 
-	cur, err := collection.Find(context.TODO(), bson.D{{"userid", userId}}, options.Find())
+	cur, err := collection.Find(context.TODO(), bson.D{}, options.Find())
 	if err != nil {
 		return nil, err
 	}
@@ -58,6 +58,29 @@ func GetAllBetsForMatch(matchId string) ([]*BetModels.Bet, error) {
 	return results, nil
 }
 
+func GetAllBetsForUser(userId string) ([]*BetModels.Bet, error) {
+	collection := mongo.GetDbClient().Collection(BETS_COLLECTION)
+
+	cur, err := collection.Find(context.TODO(), bson.D{{"userid", userId}}, options.Find())
+	if err != nil {
+		return nil, err
+	}
+
+	var results []*BetModels.Bet
+	for cur.Next(context.TODO()) {
+		var elem BetModels.Bet
+		err := cur.Decode(&elem)
+		if err != nil {
+			return nil, err
+		}
+		results = append(results, &elem)
+	}
+
+	cur.Close(context.TODO())
+
+	return results, nil
+}
+
 // func GetBet(id string) (*BetModels.Bet, error) {
 // 	collection := mongo.Db.Collection(COLLECTION)
 // 	result := BetModels.Bet{}
@@ -69,7 +92,7 @@ func GetAllBetsForMatch(matchId string) ([]*BetModels.Bet, error) {
 // 	return &result, nil
 // }
 
-func CreateBet(bet *BetModels.Bet, userId string) error {
+func CreateBet(bet *BetModels.Bet) error {
 	collection := mongo.GetDbClient().Collection(BETS_COLLECTION)
 
 	_, err := collection.InsertOne(context.Background(), &bet)

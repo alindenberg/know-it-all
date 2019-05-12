@@ -23,14 +23,15 @@ import (
 // 	json.NewEncoder(w).Encode(result)
 // }
 
-func GetAllBetsForUser(w http.ResponseWriter, req *http.Request, params httprouter.Params) {
-	userId := params.ByName("id")
+func GetAllBets(w http.ResponseWriter, req *http.Request, _ httprouter.Params) {
+	queryMap := req.URL.Query()
+	results, err := BetService.GetAllBets(queryMap)
 
-	results, err := BetService.GetAllBetsForUser(userId)
 	if err != nil {
 		SharedResponses.Error(w, err)
 		return
 	}
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(results)
@@ -49,10 +50,8 @@ func GetAllBetsForMatch(w http.ResponseWriter, req *http.Request, params httprou
 	json.NewEncoder(w).Encode(results)
 }
 
-func CreateBet(w http.ResponseWriter, req *http.Request, params httprouter.Params) {
-	userId := params.ByName("id")
-
-	id, err := BetService.CreateBet(req.Body, userId)
+func CreateBet(w http.ResponseWriter, req *http.Request, _ httprouter.Params) {
+	id, err := BetService.CreateBet(req.Body)
 	if err != nil {
 		SharedResponses.Error(w, err)
 		return

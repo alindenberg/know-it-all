@@ -2,6 +2,7 @@ package matchmodels
 
 type BetRequest struct {
 	MatchID string
+	UserID string
 	Prediction TeamSelection
 }
 type Bet struct {

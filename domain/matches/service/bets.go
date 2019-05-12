@@ -9,6 +9,7 @@ import (
 	"github.com/google/uuid"
 	Models "github.com/alindenberg/know-it-all/domain/matches/models"
 	Repository "github.com/alindenberg/know-it-all/domain/matches/repository"
+	UserService "github.com/alindenberg/know-it-all/domain/users/service"
 )
 
 // func GetBet(id string, userId string) (*BetModels.Bet, error) {
@@ -22,15 +23,40 @@ import (
 // 	return BetRepository.GetBet(id)
 // }
 
-func GetAllBetsForUser(userId string) ([]*Models.Bet, error) {
-	return Repository.GetAllBetsForUser(userId)
+func GetAllBets(queryMap map[string][]string) ([]*Models.Bet, error) {
+	var results []*Models.Bet
+	var err error
+
+	if(queryMap["userId"] != nil) {
+		userId := queryMap["userId"][0]
+		_, err = uuid.Parse(userId)
+		if err != nil {
+			return nil, err
+		}
+		results, err = Repository.GetAllBetsForUser(queryMap["userId"][0])
+	} else if(queryMap["matchId"] != nil) {
+		matchId := queryMap["matchId"][0]
+		_, err = uuid.Parse(matchId)
+		if err != nil {
+			return nil, err
+		}
+		results, err = Repository.GetAllBetsForMatch(matchId)
+	} else {
+		results, err = Repository.GetAllBets()
+	}
+
+	return results, err
 }
 
 func GetAllBetsForMatch(matchId string) ([]*Models.Bet, error) {
 	return Repository.GetAllBetsForMatch(matchId)
 }
 
-func CreateBet(jsonBody io.ReadCloser, userId string) (string, error) {
+func GetAllBetsForUser(userId string) ([]*Models.Bet, error) {
+	return Repository.GetAllBetsForUser(userId)
+}
+
+func CreateBet(jsonBody io.ReadCloser) (string, error) {
 	var betRequest Models.BetRequest
 	decoder := json.NewDecoder(jsonBody)
 	err := decoder.Decode(&betRequest)
@@ -38,7 +64,7 @@ func CreateBet(jsonBody io.ReadCloser, userId string) (string, error) {
 		return "", err
 	}
 
-	bet := betFromRequest(userId, &betRequest)
+	bet := betFromRequest(&betRequest)
 
 	// Validate group properties
 	err = validateBet(bet)
@@ -46,7 +72,7 @@ func CreateBet(jsonBody io.ReadCloser, userId string) (string, error) {
 		return "", err
 	}
 
-	return bet.BetID, Repository.CreateBet(bet, userId)
+	return bet.BetID, Repository.CreateBet(bet)
 }
 
 func DeleteBet(id string, userId string) error {
@@ -118,12 +144,19 @@ func validateBet(bet *Models.Bet) error {
 		return errors.New(fmt.Sprintf("UserId : ", err))
 	}
 
+	// validate userId corresponds to existing user
+	_, err = UserService.GetUser(bet.UserID)
+	if err != nil {
+		return errors.New(fmt.Sprintf("No corresponding User found with id: %s", bet.UserID))
+	}
+
 	// validate matchId corresponds to existing match
 	match, err := GetMatch(bet.MatchID)
 	if err != nil {
 		return errors.New(fmt.Sprintf("No corresponding Match found with id: %s", bet.MatchID))
 	}
 
+	// Validate match has not taken place yet
 	if match.Date.Before(time.Now().UTC()) {
 		return errors.New(fmt.Sprintf("May not place a bet on a Match that has begun or completed."))
 	}
@@ -137,6 +170,6 @@ func validateBet(bet *Models.Bet) error {
 	return nil
 }
 
-func betFromRequest(userId string, betRequest *Models.BetRequest) *Models.Bet {
-	return &Models.Bet{uuid.New().String(), betRequest.MatchID, userId, betRequest.Prediction, false, false}
+func betFromRequest(betRequest *Models.BetRequest) *Models.Bet {
+	return &Models.Bet{uuid.New().String(), betRequest.MatchID, betRequest.UserID, betRequest.Prediction, false, false}
 }
