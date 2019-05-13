@@ -45,9 +45,20 @@ func GetUser(id string) (*UserModels.User, error) {
 	return &result, nil
 }
 
-func CreateUser(user UserModels.User) error {
+func GetUserByUsername(username string) (*UserModels.User, error) {
 	collection := mongo.GetDbClient().Collection(COLLECTION)
-	_, err := collection.InsertOne(context.TODO(), user)
+	result := UserModels.User{}
+	err := collection.FindOne(context.TODO(), bson.D{{"username", username}}).Decode(&result)
+	if err != nil {
+		return nil, err
+	}
+
+	return &result, nil
+}
+
+func CreateUser(user *UserModels.User) error {
+	collection := mongo.GetDbClient().Collection(COLLECTION)
+	_, err := collection.InsertOne(context.TODO(), &user)
 
 	return err
 }

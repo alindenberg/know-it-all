@@ -24,6 +24,19 @@ func GetUser(w http.ResponseWriter, req *http.Request, params httprouter.Params)
 	json.NewEncoder(w).Encode(result)
 }
 
+func SignIn(w http.ResponseWriter, req *http.Request, params httprouter.Params) {
+	id := params.ByName("id")
+
+	err := UserService.SignIn(id, req.Body)
+	if err != nil {
+		SharedResponses.Error(w, err)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+}
+
 func GetAllUsers(w http.ResponseWriter, req *http.Request, _ httprouter.Params) {
 	results, err := UserService.GetAllUsers()
 	if err != nil {

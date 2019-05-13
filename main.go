@@ -37,6 +37,7 @@ func addRouteHandlers() {
 	r.GET("/users/:id", usersController.GetUser)
 	r.GET("/users", usersController.GetAllUsers)
 	r.POST("/users", usersController.CreateUser)
+	r.POST("/users/auth", usersController.SignIn)
 	r.DELETE("/users/:id", usersController.DeleteUser)
 
 	// Bet routes
