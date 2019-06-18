@@ -3,11 +3,12 @@ package main
 import (
 	"log"
 	"net/http"
-	"github.com/julienschmidt/httprouter"
+
 	mongo "github.com/alindenberg/know-it-all/database"
-	matchesController "github.com/alindenberg/know-it-all/domain/matches/controller"
 	leaguesController "github.com/alindenberg/know-it-all/domain/leagues/controller"
+	matchesController "github.com/alindenberg/know-it-all/domain/matches/controller"
 	usersController "github.com/alindenberg/know-it-all/domain/users/controller"
+	"github.com/julienschmidt/httprouter"
 	// betsController "github.com/alindenberg/know-it-all/domain/bets/controller"
 )
 
@@ -37,7 +38,7 @@ func addRouteHandlers() {
 	r.GET("/users/:id", usersController.GetUser)
 	r.GET("/users", usersController.GetAllUsers)
 	r.POST("/users", usersController.CreateUser)
-	r.POST("/users/sign-in", usersController.SignIn)
+	r.POST("/users/sessions/create", usersController.CreateUserSession)
 	r.DELETE("/users/:id", usersController.DeleteUser)
 
 	// Bet routes

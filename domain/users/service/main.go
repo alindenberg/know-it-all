@@ -1,13 +1,19 @@
 package userservice
 
 import (
-	"io"
-	"errors"
 	"encoding/json"
-	"github.com/google/uuid"
-	"golang.org/x/crypto/bcrypt"
+	"errors"
+	"fmt"
+	"io"
+	"log"
+	"os"
+	"time"
+
 	UserModels "github.com/alindenberg/know-it-all/domain/users/models"
 	UserRepository "github.com/alindenberg/know-it-all/domain/users/repository"
+	"github.com/dgrijalva/jwt-go"
+	"github.com/google/uuid"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func GetUser(id string) (*UserModels.User, error) {
@@ -26,7 +32,7 @@ func GetAllUsers() ([]*UserModels.User, error) {
 }
 
 func CreateUser(jsonBody io.ReadCloser) (string, error) {
-	var userRequest UserModels.UserRequest
+	var userRequest UserModels.UserCredentials
 	decoder := json.NewDecoder(jsonBody)
 	err := decoder.Decode(&userRequest)
 	if err != nil {
@@ -60,35 +66,63 @@ func DeleteUser(id string) error {
 	return UserRepository.DeleteUser(id)
 }
 
-func SignIn(userId string, jsonBody io.ReadCloser) error {
-	var signInRequest UserModels.UserSignInRequest
-	decoder := json.NewDecoder(jsonBody)
-	err := decoder.Decode(&signInRequest)
+func CreateUserSession(jsonBody io.ReadCloser) (string, error) {
+	var userCredentials *UserModels.UserCredentials
+	err := json.NewDecoder(jsonBody).Decode(&userCredentials)
 	if err != nil {
-		return err
+		return "", err
 	}
 
-	user, err := UserRepository.GetUserByUsername(signInRequest.Username)
+	user, err := UserRepository.GetUserByUsername(userCredentials.Username)
 	if err != nil {
-		return errors.New("No user found for given username")
+		fmt.Println("err", err)
+		return "", errors.New("No user found for given username")
 	}
 
 	// Password validation
-	err = bcrypt.CompareHashAndPassword(user.Password, []byte(signInRequest.Password))
+	err = bcrypt.CompareHashAndPassword(user.Password, []byte(userCredentials.Password))
 	if err != nil {
-		return errors.New("Incorrect password")
+		return "", errors.New("Incorrect password")
 	}
 
-	return nil
+	expirationTime := time.Now().Add(5 * time.Minute)
+	// Create the JWT claims, which includes the username and expiry time
+	claims := &UserModels.UserClaim{
+		Username: userCredentials.Username,
+		StandardClaims: jwt.StandardClaims{
+			// In JWT, the expiry time is expressed as unix milliseconds
+			ExpiresAt: expirationTime.Unix(),
+		},
+	}
+
+	// Declare the token with the algorithm used for signing, and the claims
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	// Create the JWT string
+	fmt.Println("About to get jwt key from env")
+	fmt.Println("JWT KEY IS : ", os.Getenv("jwtKey"))
+	signedToken, err := token.SignedString([]byte(os.Getenv("jwtKey")))
+	if err != nil {
+		// If there is an error in creating the JWT return an internal server error
+		log.Println(err.Error)
+		return "", err
+	}
+
+	UserRepository.CreateUserKeys(&UserModels.UserKeys{userCredentials.Username, signedToken})
+	if err != nil {
+		// If there is an error in creating the JWT return an internal server error
+		log.Println(err.Error)
+		return "", err
+	}
+	return signedToken, nil
 }
 
-func userFromRequest(userRequest *UserModels.UserRequest) (*UserModels.User, error) {
+func userFromRequest(userCredentials *UserModels.UserCredentials) (*UserModels.User, error) {
 	userId := uuid.New().String()
-	encryptedPassword, err := bcrypt.GenerateFromPassword([]byte(userRequest.Password), 10)
+	encryptedPassword, err := bcrypt.GenerateFromPassword([]byte(userCredentials.Password), 10)
 	if err != nil {
 		return nil, err
 	}
-	return &UserModels.User{userId, encryptedPassword, userRequest.Username, userRequest.Email}, nil
+	return &UserModels.User{userId, encryptedPassword, userCredentials.Username, userCredentials.Email}, nil
 }
 func validateUser(user *UserModels.User) error {
 	return nil

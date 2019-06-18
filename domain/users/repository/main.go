@@ -1,16 +1,18 @@
 package userrepository
 
 import (
-	"fmt"
-	"errors"
 	"context"
-	"github.com/mongodb/mongo-go-driver/bson"
-	"github.com/mongodb/mongo-go-driver/mongo/options"
+	"errors"
+	"fmt"
+
 	mongo "github.com/alindenberg/know-it-all/database"
 	UserModels "github.com/alindenberg/know-it-all/domain/users/models"
+	"github.com/mongodb/mongo-go-driver/bson"
+	"github.com/mongodb/mongo-go-driver/mongo/options"
 )
 
 var COLLECTION = "users"
+var USER_KEYS_COLLECTION = "user_keys"
 
 func GetAllUsers() ([]*UserModels.User, error) {
 	collection := mongo.GetDbClient().Collection(COLLECTION)
@@ -71,8 +73,21 @@ func DeleteUser(id string) error {
 		return err
 	}
 
-	if(result.DeletedCount == 0) {
+	if result.DeletedCount == 0 {
 		return errors.New(fmt.Sprintf("Document with id %s was not found", id))
 	}
+	return nil
+}
+
+func CreateUserKeys(keys *UserModels.UserKeys) error {
+	collection := mongo.GetDbClient().Collection(USER_KEYS_COLLECTION)
+	b := true
+	updateResult, err := collection.UpdateOne(context.TODO(), bson.D{{"username", &keys.Username}}, bson.D{{"$set", bson.D{{"token", &keys.Token}}}}, &options.UpdateOptions{Upsert: &b})
+
+	if err != nil {
+		fmt.Println(err.Error())
+		return err
+	}
+	fmt.Printf("Matched %v documents and updated %v documents.\n", updateResult.MatchedCount, updateResult.ModifiedCount)
 	return nil
 }
