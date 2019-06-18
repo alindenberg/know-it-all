@@ -82,7 +82,7 @@ func DeleteUser(id string) error {
 func CreateUserKeys(keys *UserModels.UserKeys) error {
 	collection := mongo.GetDbClient().Collection(USER_KEYS_COLLECTION)
 	b := true
-	updateResult, err := collection.UpdateOne(context.TODO(), bson.D{{"username", &keys.Username}}, bson.D{{"$set", bson.D{{"token", &keys.Token}}}}, &options.UpdateOptions{Upsert: &b})
+	updateResult, err := collection.UpdateOne(context.TODO(), bson.D{{"username", &keys.Username}}, bson.D{{"$set", bson.D{{"accessoken", &keys.AccessToken}, {"renewToken", &keys.RenewToken}}}}, &options.UpdateOptions{Upsert: &b})
 
 	if err != nil {
 		fmt.Println(err.Error())

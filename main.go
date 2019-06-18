@@ -7,7 +7,9 @@ import (
 	mongo "github.com/alindenberg/know-it-all/database"
 	leaguesController "github.com/alindenberg/know-it-all/domain/leagues/controller"
 	matchesController "github.com/alindenberg/know-it-all/domain/matches/controller"
+	SharedResponses "github.com/alindenberg/know-it-all/domain/shared/responses"
 	usersController "github.com/alindenberg/know-it-all/domain/users/controller"
+	userService "github.com/alindenberg/know-it-all/domain/users/service"
 	"github.com/julienschmidt/httprouter"
 	// betsController "github.com/alindenberg/know-it-all/domain/bets/controller"
 )
@@ -42,12 +44,25 @@ func addRouteHandlers() {
 	r.DELETE("/users/:id", usersController.DeleteUser)
 
 	// Bet routes
-	r.GET("/bets", matchesController.GetAllBets)
+	r.GET("/bets", BasicAuth(matchesController.GetAllBets))
 	r.POST("/bets", matchesController.CreateBet)
 	r.DELETE("/bets/:betId", matchesController.DeleteBet)
 
 	// Register routes
 	http.Handle("/", r)
+}
+
+func BasicAuth(handler httprouter.Handle) httprouter.Handle {
+	return func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+		w.Header().Set("WWW-Authenticate", "Basic realm=Restricted")
+		err := userService.Authenticate(r)
+		if err != nil {
+			SharedResponses.Error(w, err)
+			return
+		}
+		handler(w, r, ps)
+	}
+
 }
 
 func startServer() {

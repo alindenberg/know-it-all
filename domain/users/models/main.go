@@ -20,8 +20,9 @@ type UserSignInRequest struct {
 }
 
 type UserKeys struct {
-	Username string
-	Token    string
+	Username    string
+	AccessToken string
+	RenewToken  string
 }
 type User struct {
 	UserID   string

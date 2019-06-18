@@ -1,11 +1,13 @@
 package matchcontroller
 
 import (
-	"net/http"
 	"encoding/json"
-	"github.com/julienschmidt/httprouter"
+	"log"
+	"net/http"
+
 	BetService "github.com/alindenberg/know-it-all/domain/matches/service"
 	SharedResponses "github.com/alindenberg/know-it-all/domain/shared/responses"
+	"github.com/julienschmidt/httprouter"
 )
 
 // func GetBet(w http.ResponseWriter, req *http.Request, params httprouter.Params) {
@@ -24,6 +26,7 @@ import (
 // }
 
 func GetAllBets(w http.ResponseWriter, req *http.Request, _ httprouter.Params) {
+	log.Println("Getting all bets")
 	queryMap := req.URL.Query()
 	results, err := BetService.GetAllBets(queryMap)
 
