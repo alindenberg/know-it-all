@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	UserModels "github.com/alindenberg/know-it-all/domain/users/models"
@@ -87,15 +88,16 @@ func CreateUserSession(jsonBody io.ReadCloser) (*UserModels.UserKeys, error) {
 	}
 
 	expirationTime := time.Now().Add(5 * time.Minute)
-	signedAccessToken, err := getSignedToken(userCredentials.Username, expirationTime)
+	signedAccessToken, err := getSignedToken(userCredentials.Username, "", expirationTime)
 	if err != nil {
 		log.Println(err.Error())
 		return nil, err
 	}
 
 	// Create renewal token that is good for 1 day
+	// (add remaining minutes to access token expiration time)
 	renewTokenExpirationTime := expirationTime.Add(1395 * time.Minute)
-	signedRenewToken, err := getSignedToken(userCredentials.Username, renewTokenExpirationTime)
+	signedRenewToken, err := getSignedToken(userCredentials.Username, "", renewTokenExpirationTime)
 	if err != nil {
 		log.Println(err.Error())
 		return nil, err
@@ -109,24 +111,26 @@ func CreateUserSession(jsonBody io.ReadCloser) (*UserModels.UserKeys, error) {
 	return &UserModels.UserKeys{AccessToken: signedAccessToken, RenewToken: signedRenewToken}, nil
 }
 
-func Authenticate(r *http.Request) error {
-	authorizationHeader := r.Header.Get("authorization")
-
-	claims := &UserModels.UserClaim{}
-	tkn, err := jwt.ParseWithClaims(authorizationHeader, claims, func(token *jwt.Token) (interface{}, error) {
-		return []byte(os.Getenv("jwtKey")), nil
+func Authenticate(accessToken string) ([]string, error) {
+	claims := UserModels.UserClaim{}
+	tkn, err := jwt.ParseWithClaims(accessToken, &claims, func(token *jwt.Token) (interface{}, error) {
+		cert, err := getPemCert(token)
+		if err != nil {
+			panic(err.Error())
+		}
+		key, _ := jwt.ParseRSAPublicKeyFromPEM([]byte(cert))
+		return key, nil
 	})
-	if !tkn.Valid {
-		log.Println("Token is invalid", err)
-		return err
+	if err != nil || !tkn.Valid {
+		return nil, err
 	}
-	// At this point key is valid and we need to validate it belongs to a user
-	return nil
+
+	return strings.Split(claims.Scope, " "), nil
 }
 
 // func RenewAuthentication()
 
-func getSignedToken(username string, expirationTime time.Time) (string, error) {
+func getSignedToken(username string, scope string, expirationTime time.Time) (string, error) {
 	// Create the JWT claims, which includes the username and expiry time
 	claims := &UserModels.UserClaim{
 		Username: username,
@@ -134,6 +138,7 @@ func getSignedToken(username string, expirationTime time.Time) (string, error) {
 			// In JWT, the expiry time is expressed as unix milliseconds
 			ExpiresAt: expirationTime.Unix(),
 		},
+		Scope: scope,
 	}
 	// Declare the token with the algorithm used for signing, and the claims
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
@@ -157,4 +162,33 @@ func userFromRequest(userCredentials *UserModels.UserCredentials) (*UserModels.U
 }
 func validateUser(user *UserModels.User) error {
 	return nil
+}
+
+func getPemCert(token *jwt.Token) (string, error) {
+	cert := ""
+	resp, err := http.Get(fmt.Sprintf("https://%s/.well-known/jwks.json", os.Getenv("appDomain")))
+
+	if err != nil {
+		return cert, err
+	}
+	defer resp.Body.Close()
+
+	var jwks = UserModels.Jwks{}
+	err = json.NewDecoder(resp.Body).Decode(&jwks)
+	if err != nil {
+		return cert, err
+	}
+
+	for k, _ := range jwks.Keys {
+		if token.Header["kid"] == jwks.Keys[k].Kid {
+			cert = "-----BEGIN CERTIFICATE-----\n" + jwks.Keys[k].X5c[0] + "\n-----END CERTIFICATE-----"
+		}
+	}
+
+	if cert == "" {
+		err := errors.New("Unable to find appropriate key.")
+		return cert, err
+	}
+
+	return cert, nil
 }

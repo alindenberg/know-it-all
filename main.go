@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"log"
 	"net/http"
 
@@ -44,7 +45,7 @@ func addRouteHandlers() {
 	r.DELETE("/users/:id", usersController.DeleteUser)
 
 	// Bet routes
-	r.GET("/bets", BasicAuth(matchesController.GetAllBets))
+	r.GET("/bets", Auth(matchesController.GetAllBets, []string{"read:bets"}))
 	r.POST("/bets", matchesController.CreateBet)
 	r.DELETE("/bets/:betId", matchesController.DeleteBet)
 
@@ -52,13 +53,32 @@ func addRouteHandlers() {
 	http.Handle("/", r)
 }
 
-func BasicAuth(handler httprouter.Handle) httprouter.Handle {
+func Auth(handler httprouter.Handle, scopesNeeded []string) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-		w.Header().Set("WWW-Authenticate", "Basic realm=Restricted")
-		err := userService.Authenticate(r)
+		token := r.Header.Get("authorization")
+		if token == "" {
+			SharedResponses.Unauthorized(w, errors.New("No token provided"))
+			return
+		}
+
+		userScopes, err := userService.Authenticate(token)
 		if err != nil {
 			SharedResponses.Error(w, err)
 			return
+		}
+
+		// Validate token comes with scope(s) needed for the requested resource
+		for _, scope := range scopesNeeded {
+			hasScope := false
+			for _, userScope := range userScopes {
+				if userScope == scope {
+					hasScope = true
+				}
+			}
+			if !hasScope {
+				SharedResponses.Unauthorized(w, nil)
+				return
+			}
 		}
 		handler(w, r, ps)
 	}
