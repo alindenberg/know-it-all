@@ -1,6 +1,9 @@
 package usermodels
 
 import (
+	"encoding/json"
+	"strings"
+
 	"github.com/dgrijalva/jwt-go"
 )
 
@@ -20,7 +23,29 @@ type Jwks struct {
 type UserClaim struct {
 	Username string
 	Scope    string
-	Audience []string
+	Audience multiString `json:"aud, omitempty"`
 	// Standard jwt claims
 	jwt.StandardClaims
+}
+
+type multiString string
+
+func (ms *multiString) UnmarshalJSON(data []byte) error {
+	if len(data) > 0 {
+		switch data[0] {
+		case '"':
+			var s string
+			if err := json.Unmarshal(data, &s); err != nil {
+				return err
+			}
+			*ms = multiString(s)
+		case '[':
+			var s []string
+			if err := json.Unmarshal(data, &s); err != nil {
+				return err
+			}
+			*ms = multiString(strings.Join(s, ","))
+		}
+	}
+	return nil
 }
