@@ -116,7 +116,8 @@ func Authenticate(accessToken string) ([]string, error) {
 	tkn, err := jwt.ParseWithClaims(accessToken, &claims, func(token *jwt.Token) (interface{}, error) {
 		cert, err := getPemCert(token)
 		if err != nil {
-			panic(err.Error())
+			log.Println(err.Error())
+			return nil, err
 		}
 		key, _ := jwt.ParseRSAPublicKeyFromPEM([]byte(cert))
 		return key, nil

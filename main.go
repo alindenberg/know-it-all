@@ -26,7 +26,7 @@ func addRouteHandlers() {
 	r := httprouter.New()
 	// MatchRoutes
 	r.GET("/matches/:id", matchesController.GetMatch)
-	r.GET("/matches", matchesController.GetAllMatches)
+	r.GET("/matches", Auth(matchesController.GetAllMatches, []string{"read:matches"}))
 	r.POST("/matches", matchesController.CreateMatch)
 	r.POST("/matches/:id/resolve", matchesController.ResolveMatch)
 	r.DELETE("/matches/:id", matchesController.DeleteMatch)
@@ -63,7 +63,7 @@ func Auth(handler httprouter.Handle, scopesNeeded []string) httprouter.Handle {
 
 		userScopes, err := userService.Authenticate(token)
 		if err != nil {
-			SharedResponses.Error(w, err)
+			SharedResponses.Unauthorized(w, err)
 			return
 		}
 
