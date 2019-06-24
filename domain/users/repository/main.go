@@ -92,7 +92,6 @@ func CreateUserBet(id string, bet *UserModels.UserBet) error {
 			{"$set", bson.D{{"bets.$", bet}}},
 		},
 	)
-	log.Println("Set result ", *res)
 	if err != nil {
 		return err
 	}
@@ -106,7 +105,6 @@ func CreateUserBet(id string, bet *UserModels.UserBet) error {
 				{"$push", bson.D{{"bets", bet}}},
 			},
 		)
-		log.Println("Push result ", *res)
 	}
 	return nil
 }

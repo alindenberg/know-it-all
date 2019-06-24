@@ -16,6 +16,9 @@ type UserKeys struct {
 	AccessToken string
 	RenewToken  string
 }
+type UserRequest struct {
+	UserID string
+}
 type User struct {
 	UserID string
 	Bets   []UserBet

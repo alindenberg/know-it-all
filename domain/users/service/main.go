@@ -32,30 +32,16 @@ func GetAllUsers() ([]*UserModels.User, error) {
 }
 
 func CreateUser(jsonBody io.ReadCloser) (string, error) {
-	var userRequest UserModels.UserCredentials
+	var userRequest UserModels.UserRequest
 	decoder := json.NewDecoder(jsonBody)
 	err := decoder.Decode(&userRequest)
 	if err != nil {
 		return "", err
 	}
 
-	// TODO: FIX FUNCTIONALITY NOW THAT USING AUTH0
-	// Assign a random id
-	// user, err := userFromRequest(&userRequest)
-	// if err != nil {
-	// 	return "", err
-	// }
+	user := UserModels.User{userRequest.UserID, []UserModels.UserBet{}}
 
-	// // Validate group properties
-	// err = validateUser(user)
-
-	// if err != nil {
-	// 	return "", err
-	// }
-
-	// return user.UserID, UserRepository.CreateUser(user)
-
-	return "", nil
+	return user.UserID, UserRepository.CreateUser(&user)
 }
 
 func DeleteUser(id string) error {
