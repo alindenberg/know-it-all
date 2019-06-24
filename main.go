@@ -27,12 +27,12 @@ func addRouteHandlers() {
 	// MatchRoutes
 	r.GET("/matches/:id", matchesController.GetMatch)
 	r.GET("/matches", Auth(matchesController.GetAllMatches, []string{"read:matches"}))
-	r.POST("/matches", matchesController.CreateMatch)
-	r.POST("/matches/:id/resolve", matchesController.ResolveMatch)
-	r.DELETE("/matches/:id", matchesController.DeleteMatch)
+	r.POST("/matches", Auth(matchesController.CreateMatch, []string{"write:matches"}))
+	r.POST("/matches/:id/resolve", Auth(matchesController.ResolveMatch, []string{"update:matches"}))
+	r.DELETE("/matches/:id", Auth(matchesController.DeleteMatch, []string{"delete:matches"}))
 
 	// League Routes
-	r.GET("/leagues/:id", leaguesController.GetLeague)
+	r.GET("/leagues/:id", Auth(leaguesController.GetLeague, []string{"read:leagues"}))
 	r.GET("/leagues", leaguesController.GetAllLeagues)
 	r.POST("/leagues", leaguesController.CreateLeague)
 	r.DELETE("/leagues/:id", leaguesController.DeleteLeague)
@@ -41,7 +41,7 @@ func addRouteHandlers() {
 	r.GET("/users/:id", usersController.GetUser)
 	r.GET("/users", usersController.GetAllUsers)
 	r.POST("/users", usersController.CreateUser)
-	r.POST("/users/sessions/create", usersController.CreateUserSession)
+	r.POST("/users/:id/bets", Auth(usersController.CreateUserBet, []string{"write:bets"}))
 	r.DELETE("/users/:id", usersController.DeleteUser)
 
 	// Bet routes

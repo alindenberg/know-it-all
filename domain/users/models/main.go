@@ -17,8 +17,26 @@ type UserKeys struct {
 	RenewToken  string
 }
 type User struct {
-	UserID   string
-	Password []byte
-	Username string
-	Email    string
+	UserID string
+	Bets   []UserBet
 }
+
+type UserBetRequest struct {
+	MatchID    string
+	Prediction Prediction
+}
+
+type UserBet struct {
+	MatchID    string
+	Prediction Prediction
+	IsResolved bool
+	Won        bool
+}
+
+type Prediction int
+
+const (
+	HomeTeam Prediction = 0
+	AwayTeam Prediction = 1
+	Draw     Prediction = 2
+)

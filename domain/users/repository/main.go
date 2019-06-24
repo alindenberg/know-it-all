@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
 
 	mongo "github.com/alindenberg/know-it-all/database"
 	UserModels "github.com/alindenberg/know-it-all/domain/users/models"
@@ -79,15 +80,33 @@ func DeleteUser(id string) error {
 	return nil
 }
 
-func CreateUserKeys(keys *UserModels.UserKeys) error {
-	collection := mongo.GetDbClient().Collection(USER_KEYS_COLLECTION)
-	b := true
-	updateResult, err := collection.UpdateOne(context.TODO(), bson.D{{"username", &keys.Username}}, bson.D{{"$set", bson.D{{"accessoken", &keys.AccessToken}, {"renewToken", &keys.RenewToken}}}}, &options.UpdateOptions{Upsert: &b})
-
+func CreateUserBet(id string, bet *UserModels.UserBet) error {
+	collection := mongo.GetDbClient().Collection(COLLECTION)
+	log.Println("Match id : ", bet.MatchID)
+	res, err := collection.UpdateOne(
+		context.TODO(),
+		bson.D{
+			{"userid", id}, {"bets.matchid", bet.MatchID},
+		},
+		bson.D{
+			{"$set", bson.D{{"bets.$", bet}}},
+		},
+	)
+	log.Println("Set result ", *res)
 	if err != nil {
-		fmt.Println(err.Error())
 		return err
 	}
-	fmt.Printf("Matched %v documents and updated %v documents.\n", updateResult.MatchedCount, updateResult.ModifiedCount)
+	if res.MatchedCount == 0 {
+		res, err = collection.UpdateOne(
+			context.TODO(),
+			bson.D{
+				{"userid", id},
+			},
+			bson.D{
+				{"$push", bson.D{{"bets", bet}}},
+			},
+		)
+		log.Println("Push result ", *res)
+	}
 	return nil
 }

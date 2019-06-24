@@ -1,15 +1,16 @@
 package matchservice
 
 import (
-	"io"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"time"
-	"encoding/json"
-	"github.com/google/uuid"
+
 	Models "github.com/alindenberg/know-it-all/domain/matches/models"
 	Repository "github.com/alindenberg/know-it-all/domain/matches/repository"
 	UserService "github.com/alindenberg/know-it-all/domain/users/service"
+	"github.com/google/uuid"
 )
 
 // func GetBet(id string, userId string) (*BetModels.Bet, error) {
@@ -27,14 +28,14 @@ func GetAllBets(queryMap map[string][]string) ([]*Models.Bet, error) {
 	var results []*Models.Bet
 	var err error
 
-	if(queryMap["userId"] != nil) {
+	if queryMap["userId"] != nil {
 		userId := queryMap["userId"][0]
 		_, err = uuid.Parse(userId)
 		if err != nil {
 			return nil, err
 		}
 		results, err = Repository.GetAllBetsForUser(queryMap["userId"][0])
-	} else if(queryMap["matchId"] != nil) {
+	} else if queryMap["matchId"] != nil {
 		matchId := queryMap["matchId"][0]
 		_, err = uuid.Parse(matchId)
 		if err != nil {
@@ -102,7 +103,7 @@ func ResolveBets(matchId string, result *Models.MatchResult) error {
 
 		switch bet.Prediction {
 		case Models.HomeTeam:
-			if(result.HomeScore > result.AwayScore) {
+			if result.HomeScore > result.AwayScore {
 				wonBet = true
 			} else {
 				wonBet = false
@@ -110,7 +111,7 @@ func ResolveBets(matchId string, result *Models.MatchResult) error {
 			Repository.ResolveBet(bet.BetID, wonBet)
 			break
 		case Models.AwayTeam:
-			if(result.HomeScore < result.AwayScore) {
+			if result.HomeScore < result.AwayScore {
 				wonBet = true
 			} else {
 				wonBet = false
@@ -118,7 +119,7 @@ func ResolveBets(matchId string, result *Models.MatchResult) error {
 			Repository.ResolveBet(bet.BetID, wonBet)
 			break
 		case Models.Draw:
-			if(result.HomeScore == result.AwayScore) {
+			if result.HomeScore == result.AwayScore {
 				wonBet = true
 			} else {
 				wonBet = false
@@ -171,5 +172,12 @@ func validateBet(bet *Models.Bet) error {
 }
 
 func betFromRequest(betRequest *Models.BetRequest) *Models.Bet {
-	return &Models.Bet{uuid.New().String(), betRequest.MatchID, betRequest.UserID, betRequest.Prediction, false, false}
+	return &Models.Bet{
+		uuid.New().String(),
+		betRequest.MatchID,
+		betRequest.UserID,
+		betRequest.Prediction,
+		false,
+		false,
+	}
 }

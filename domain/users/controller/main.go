@@ -2,6 +2,7 @@ package usercontroller
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 
 	SharedResponses "github.com/alindenberg/know-it-all/domain/shared/responses"
@@ -15,18 +16,6 @@ func GetUser(w http.ResponseWriter, req *http.Request, params httprouter.Params)
 	id := params.ByName("id")
 
 	result, err := UserService.GetUser(id)
-	if err != nil {
-		SharedResponses.Error(w, err)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(result)
-}
-
-func CreateUserSession(w http.ResponseWriter, req *http.Request, params httprouter.Params) {
-	result, err := UserService.CreateUserSession(req.Body)
 	if err != nil {
 		SharedResponses.Error(w, err)
 		return
@@ -69,4 +58,18 @@ func DeleteUser(w http.ResponseWriter, req *http.Request, params httprouter.Para
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusNoContent)
+}
+
+func CreateUserBet(w http.ResponseWriter, req *http.Request, params httprouter.Params) {
+	id := params.ByName("id")
+	log.Println("Create user bet for ", id)
+
+	err := UserService.CreateUserBet(id, req.Body)
+	if err != nil {
+		SharedResponses.Error(w, err)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
 }
