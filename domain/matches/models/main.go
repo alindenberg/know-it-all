@@ -7,19 +7,20 @@ import (
 type MatchRequest struct {
 	HomeTeam string
 	AwayTeam string
-	Date string
+	Date     string
 }
 
 type Match struct {
-	MatchID  string
-	HomeTeam string
-	AwayTeam string
-	HomeScore	int
+	MatchID   string
+	LeagueID  string
+	HomeTeam  string
+	AwayTeam  string
+	HomeScore int
 	AwayScore int
-	Date time.Time
+	Date      time.Time
 }
 
 type MatchResult struct {
-	HomeScore	int
-	AwayScore	int
+	HomeScore int
+	AwayScore int
 }

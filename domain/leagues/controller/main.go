@@ -1,11 +1,12 @@
 package leaguescontroller
 
 import (
-	"net/http"
 	"encoding/json"
-	"github.com/julienschmidt/httprouter"
-	SharedResponses "github.com/alindenberg/know-it-all/domain/shared/responses"
+	"net/http"
+
 	LeagueService "github.com/alindenberg/know-it-all/domain/leagues/service"
+	SharedResponses "github.com/alindenberg/know-it-all/domain/shared/responses"
+	"github.com/julienschmidt/httprouter"
 )
 
 func GetLeague(w http.ResponseWriter, req *http.Request, params httprouter.Params) {
@@ -35,6 +36,18 @@ func GetAllLeagues(w http.ResponseWriter, req *http.Request, _ httprouter.Params
 
 func CreateLeague(w http.ResponseWriter, req *http.Request, _ httprouter.Params) {
 	id, err := LeagueService.CreateLeague(req.Body)
+	if err != nil {
+		SharedResponses.Error(w, err)
+		return
+	}
+
+	SharedResponses.Create(w, id)
+}
+
+func CreateLeagueMatch(w http.ResponseWriter, req *http.Request, params httprouter.Params) {
+	leageuId := params.ByName("leagueId")
+
+	id, err := LeagueService.CreateLeagueMatch(leageuId, req.Body)
 	if err != nil {
 		SharedResponses.Error(w, err)
 		return

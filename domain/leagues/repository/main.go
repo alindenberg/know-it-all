@@ -1,13 +1,15 @@
 package leaguerepository
 
 import (
-	"fmt"
-	"errors"
 	"context"
-	"github.com/mongodb/mongo-go-driver/bson"
-	"github.com/mongodb/mongo-go-driver/mongo/options"
+	"errors"
+	"fmt"
+	"log"
+
 	mongo "github.com/alindenberg/know-it-all/database"
 	LeagueModels "github.com/alindenberg/know-it-all/domain/leagues/models"
+	"github.com/mongodb/mongo-go-driver/bson"
+	"github.com/mongodb/mongo-go-driver/mongo/options"
 )
 
 var COLLECTION = "leagues"
@@ -50,6 +52,26 @@ func CreateLeague(league LeagueModels.League) error {
 	return err
 }
 
+func CreateLeagueMatch(leagueId string, match *LeagueModels.LeagueMatch) error {
+	log.Println("Create league match for id ", leagueId)
+	collection := mongo.GetDbClient().Collection(COLLECTION)
+	_, err := collection.UpdateOne(
+		context.TODO(),
+		bson.D{
+			{"leagueid", leagueId},
+		},
+		bson.D{
+			{"$push", bson.D{{"matches", match}}},
+		},
+	)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func DeleteLeague(id string) error {
 	collection := mongo.GetDbClient().Collection(COLLECTION)
 	result, err := collection.DeleteOne(context.TODO(), bson.D{{"leagueid", id}})
@@ -58,7 +80,7 @@ func DeleteLeague(id string) error {
 		return err
 	}
 
-	if(result.DeletedCount == 0) {
+	if result.DeletedCount == 0 {
 		return errors.New(fmt.Sprintf("Document with id %s was not found", id))
 	}
 	return nil

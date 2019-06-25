@@ -12,7 +12,6 @@ import (
 )
 
 var COLLECTION = "users"
-var USER_KEYS_COLLECTION = "user_keys"
 
 func GetAllUsers() ([]*UserModels.User, error) {
 	collection := mongo.GetDbClient().Collection(COLLECTION)
@@ -23,12 +22,12 @@ func GetAllUsers() ([]*UserModels.User, error) {
 
 	var results []*UserModels.User
 	for cur.Next(context.TODO()) {
-		var elem UserModels.User
-		err := cur.Decode(&elem)
+		var user UserModels.User
+		err := cur.Decode(&user)
 		if err != nil {
 			return nil, err
 		}
-		results = append(results, &elem)
+		results = append(results, &user)
 	}
 
 	cur.Close(context.TODO())

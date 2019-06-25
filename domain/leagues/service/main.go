@@ -1,13 +1,15 @@
 package leagueservice
 
 import (
-	"io"
-	"fmt"
-	"errors"
 	"encoding/json"
-	"github.com/google/uuid"
+	"errors"
+	"fmt"
+	"io"
+	"time"
+
 	LeagueModels "github.com/alindenberg/know-it-all/domain/leagues/models"
 	LeagueRepository "github.com/alindenberg/know-it-all/domain/leagues/repository"
+	"github.com/google/uuid"
 )
 
 func GetLeague(id string) (*LeagueModels.League, error) {
@@ -33,15 +35,31 @@ func CreateLeague(jsonBody io.ReadCloser) (string, error) {
 		return "", err
 	}
 
-	id := uuid.New().String()
-	league.LeagueID = id
+	league.LeagueID = uuid.New().String()
 
 	err = validateLeague(&league)
 	if err != nil {
 		return "", err
 	}
 
-	return id, LeagueRepository.CreateLeague(league)
+	return league.LeagueID, LeagueRepository.CreateLeague(league)
+}
+
+func CreateLeagueMatch(leagueId string, jsonBody io.ReadCloser) (string, error) {
+	var match LeagueModels.LeagueMatch
+	decoder := json.NewDecoder(jsonBody)
+	err := decoder.Decode(&match)
+	if err != nil {
+		return "", err
+	}
+
+	match.MatchID = uuid.New().String()
+
+	err = validateMatch(&match)
+	if err != nil {
+		return "", err
+	}
+	return match.MatchID, LeagueRepository.CreateLeagueMatch(leagueId, &match)
 }
 
 func DeleteLeague(id string) error {
@@ -73,5 +91,12 @@ func validateLeague(league *LeagueModels.League) error {
 		return errors.New(fmt.Sprintf("Division must be an integer greater than 0"))
 	}
 
+	return nil
+}
+
+func validateMatch(match *LeagueModels.LeagueMatch) error {
+	if match.Date.Before(time.Now().UTC()) {
+		return errors.New(fmt.Sprintf("New match must have Date after the current time"))
+	}
 	return nil
 }

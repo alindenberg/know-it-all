@@ -1,15 +1,16 @@
 package matchservice
 
 import (
-	"io"
+	"encoding/json"
+	"errors"
 	"fmt"
+	"io"
 	"log"
 	"time"
-	"errors"
-	"encoding/json"
-	"github.com/google/uuid"
+
 	MatchModels "github.com/alindenberg/know-it-all/domain/matches/models"
 	MatchRepository "github.com/alindenberg/know-it-all/domain/matches/repository"
+	"github.com/google/uuid"
 )
 
 func GetMatch(id string) (*MatchModels.Match, error) {
@@ -24,7 +25,7 @@ func GetMatch(id string) (*MatchModels.Match, error) {
 }
 
 func GetAllMatches() ([]*MatchModels.Match, error) {
-	return  MatchRepository.GetAllMatches()
+	return MatchRepository.GetAllMatches()
 }
 
 func CreateMatch(jsonBody io.ReadCloser) (string, error) {
@@ -81,7 +82,7 @@ func matchFromRequest(matchRequest *MatchModels.MatchRequest) (*MatchModels.Matc
 		return nil, err
 	}
 
-	return &MatchModels.Match{uuid.New().String(), matchRequest.HomeTeam, matchRequest.AwayTeam, 0, 0, datetime}, nil
+	return &MatchModels.Match{uuid.New().String(), uuid.New().String(), matchRequest.HomeTeam, matchRequest.AwayTeam, 0, 0, datetime}, nil
 }
 
 func validateMatch(match *MatchModels.Match) error {
