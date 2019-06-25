@@ -17,13 +17,6 @@ import (
 )
 
 func GetUser(id string) (*UserModels.User, error) {
-	// Minimal input sanitization on id value
-	// just make sure its valid uuid
-	_, err := uuid.Parse(id)
-	if err != nil {
-		return nil, err
-	}
-
 	return UserRepository.GetUser(id)
 }
 
@@ -39,7 +32,11 @@ func CreateUser(jsonBody io.ReadCloser) (string, error) {
 		return "", err
 	}
 
-	user := UserModels.User{userRequest.UserID, []UserModels.UserBet{}}
+	user := UserModels.User{
+		userRequest.UserID,
+		userRequest.Email,
+		[]UserModels.UserBet{},
+	}
 
 	return user.UserID, UserRepository.CreateUser(&user)
 }

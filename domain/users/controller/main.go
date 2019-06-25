@@ -2,7 +2,6 @@ package usercontroller
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 
 	SharedResponses "github.com/alindenberg/know-it-all/domain/shared/responses"
@@ -62,7 +61,6 @@ func DeleteUser(w http.ResponseWriter, req *http.Request, params httprouter.Para
 
 func CreateUserBet(w http.ResponseWriter, req *http.Request, params httprouter.Params) {
 	id := params.ByName("id")
-	log.Println("Create user bet for ", id)
 
 	err := UserService.CreateUserBet(id, req.Body)
 	if err != nil {

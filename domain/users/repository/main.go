@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
 
 	mongo "github.com/alindenberg/know-it-all/database"
 	UserModels "github.com/alindenberg/know-it-all/domain/users/models"
@@ -82,7 +81,6 @@ func DeleteUser(id string) error {
 
 func CreateUserBet(id string, bet *UserModels.UserBet) error {
 	collection := mongo.GetDbClient().Collection(COLLECTION)
-	log.Println("Match id : ", bet.MatchID)
 	res, err := collection.UpdateOne(
 		context.TODO(),
 		bson.D{

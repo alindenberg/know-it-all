@@ -18,9 +18,11 @@ type UserKeys struct {
 }
 type UserRequest struct {
 	UserID string
+	Email  string
 }
 type User struct {
 	UserID string
+	Email  string
 	Bets   []UserBet
 }
 
