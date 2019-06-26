@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
 
 	mongo "github.com/alindenberg/know-it-all/database"
 	LeagueModels "github.com/alindenberg/know-it-all/domain/leagues/models"
@@ -53,7 +52,6 @@ func CreateLeague(league LeagueModels.League) error {
 }
 
 func CreateLeagueMatch(leagueId string, match *LeagueModels.LeagueMatch) error {
-	log.Println("Create league match for id ", leagueId)
 	collection := mongo.GetDbClient().Collection(COLLECTION)
 	_, err := collection.UpdateOne(
 		context.TODO(),

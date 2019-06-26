@@ -8,6 +8,7 @@ import (
 	mongo "github.com/alindenberg/know-it-all/database"
 	leaguesController "github.com/alindenberg/know-it-all/domain/leagues/controller"
 	SharedResponses "github.com/alindenberg/know-it-all/domain/shared/responses"
+	teamsController "github.com/alindenberg/know-it-all/domain/teams/controller"
 	usersController "github.com/alindenberg/know-it-all/domain/users/controller"
 	userService "github.com/alindenberg/know-it-all/domain/users/service"
 	"github.com/julienschmidt/httprouter"
@@ -23,32 +24,30 @@ func main() {
 
 func addRouteHandlers() {
 	r := httprouter.New()
-	// MatchRoutes
-	// r.GET("/matches/:id", matchesController.GetMatch)
-	// r.GET("/matches", Auth(matchesController.GetAllMatches, []string{"read:matches"}))
-	// r.POST("/matches", Auth(matchesController.CreateMatch, []string{"write:matches"}))
-	// r.POST("/matches/:id/resolve", Auth(matchesController.ResolveMatch, []string{"update:matches"}))
-	// r.DELETE("/matches/:id", Auth(matchesController.DeleteMatch, []string{"delete:matches"}))
+	// TeamRoutes
+	r.GET("/teams", teamsController.GetAllTeams)
+	r.GET("/teams/:teamId", teamsController.GetTeam)
+
+	r.POST("/teams", teamsController.CreateTeam)
 
 	// League Routes
-	r.GET("/leagues/:id", Auth(leaguesController.GetLeague, []string{"read:leagues"}))
-	r.POST("/leagues/:leagueId/matches", Auth(leaguesController.CreateLeagueMatch, []string{"write:matches"}))
-	// r.POST("/matches/:id/resolve", Auth(leaguesController.ResolveMatch, []string{"update:matches"}))
 	r.GET("/leagues", leaguesController.GetAllLeagues)
+	r.GET("/leagues/:id", leaguesController.GetLeague)
+	r.GET("/leagues/:id/teams", teamsController.GetAllTeamsForLeague)
+
 	r.POST("/leagues", leaguesController.CreateLeague)
+	r.POST("/leagues/:leagueId/matches", leaguesController.CreateLeagueMatch)
+
 	r.DELETE("/leagues/:id", leaguesController.DeleteLeague)
 
 	// User Routes
 	r.GET("/users/:id", usersController.GetUser)
 	r.GET("/users", usersController.GetAllUsers)
-	r.POST("/users", usersController.CreateUser)
-	r.POST("/users/:id/bets", Auth(usersController.CreateUserBet, []string{"write:bets"}))
-	r.DELETE("/users/:id", usersController.DeleteUser)
 
-	// // Bet routes
-	// r.GET("/bets", Auth(matchesController.GetAllBets, []string{"read:bets"}))
-	// r.POST("/bets", matchesController.CreateBet)
-	// r.DELETE("/bets/:betId", matchesController.DeleteBet)
+	r.POST("/users", usersController.CreateUser)
+	r.POST("/users/:id/bets", usersController.CreateUserBet)
+
+	r.DELETE("/users/:id", usersController.DeleteUser)
 
 	// Register routes
 	http.Handle("/", r)

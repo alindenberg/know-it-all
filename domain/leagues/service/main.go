@@ -36,6 +36,8 @@ func CreateLeague(jsonBody io.ReadCloser) (string, error) {
 	}
 
 	league.LeagueID = uuid.New().String()
+	// initialize matches to empty array
+	league.Matches = []LeagueModels.LeagueMatch{}
 
 	err = validateLeague(&league)
 	if err != nil {
@@ -54,6 +56,8 @@ func CreateLeagueMatch(leagueId string, jsonBody io.ReadCloser) (string, error) 
 	}
 
 	match.MatchID = uuid.New().String()
+	match.HomeTeamScore = 0
+	match.AwayTeamScore = 0
 
 	err = validateMatch(&match)
 	if err != nil {
@@ -80,15 +84,15 @@ func validateLeague(league *LeagueModels.League) error {
 	}
 
 	if len(league.Name) > 25 {
-		return errors.New(fmt.Sprintf("League name may not be longer than 25 characters"))
+		return errors.New(fmt.Sprintf("Field 'name' may not be longer than 25 characters"))
 	}
 
 	if len(league.Country) > 25 {
-		return errors.New(fmt.Sprintf("League country name may not be longer than 25 characters. Use abbreviation if necessary."))
+		return errors.New(fmt.Sprintf("Field 'country' name may not be longer than 25 characters. Use abbreviation if necessary."))
 	}
 
 	if league.Division <= 0 {
-		return errors.New(fmt.Sprintf("Division must be an integer greater than 0"))
+		return errors.New(fmt.Sprintf("Field 'division' must be an integer greater than 0"))
 	}
 
 	return nil
