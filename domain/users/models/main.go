@@ -21,9 +21,10 @@ type UserRequest struct {
 	Email  string
 }
 type User struct {
-	UserID string
-	Email  string
-	Bets   []UserBet
+	UserID  string
+	Email   string
+	Bets    []UserBet
+	Friends []string
 }
 
 type UserBetRequest struct {

@@ -36,6 +36,7 @@ func CreateUser(jsonBody io.ReadCloser) (string, error) {
 		userRequest.UserID,
 		userRequest.Email,
 		[]UserModels.UserBet{},
+		[]string{},
 	}
 
 	return user.UserID, UserRepository.CreateUser(&user)
@@ -64,6 +65,10 @@ func CreateUserBet(id string, jsonBody io.ReadCloser) error {
 	bet := betFromRequest(&betRequest)
 
 	return UserRepository.CreateUserBet(id, bet)
+}
+
+func AddFriend(userId string, friendId string) error {
+	return UserRepository.AddFriend(userId, friendId)
 }
 
 func Authenticate(accessToken string) ([]string, error) {

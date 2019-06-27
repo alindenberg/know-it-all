@@ -105,3 +105,13 @@ func CreateUserBet(id string, bet *UserModels.UserBet) error {
 	}
 	return nil
 }
+
+func AddFriend(userId string, friendId string) error {
+	collection := mongo.GetDbClient().Collection(COLLECTION)
+	_, err := collection.UpdateOne(
+		context.TODO(),
+		bson.D{{"userid", userId}},
+		bson.D{{"$push", bson.D{{"friends", friendId}}}},
+	)
+	return err
+}

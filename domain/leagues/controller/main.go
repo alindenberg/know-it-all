@@ -10,7 +10,7 @@ import (
 )
 
 func GetLeague(w http.ResponseWriter, req *http.Request, params httprouter.Params) {
-	id := params.ByName("id")
+	id := params.ByName("leagueId")
 
 	result, err := LeagueService.GetLeague(id)
 	if err != nil {

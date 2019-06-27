@@ -59,7 +59,7 @@ func CreateLeagueMatch(leagueId string, match *LeagueModels.LeagueMatch) error {
 			{"leagueid", leagueId},
 		},
 		bson.D{
-			{"$push", bson.D{{"matches", match}}},
+			{"$push", bson.D{{"upcomingmatches", match}}},
 		},
 	)
 

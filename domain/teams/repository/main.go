@@ -37,12 +37,12 @@ func GetAllTeams() ([]*TeamModels.Team, error) {
 
 func GetAllTeamsForLeague(leagueID string) ([]*TeamModels.Team, error) {
 	collection := mongo.GetDbClient().Collection(COLLECTION)
-	cur, err := collection.Find(context.TODO(), bson.D{{"leagueId", leagueID}}, options.Find())
+	cur, err := collection.Find(context.TODO(), bson.D{{"leagues", leagueID}}, options.Find())
 	if err != nil {
 		return nil, err
 	}
 
-	var results []*TeamModels.Team
+	results := []*TeamModels.Team{}
 	for cur.Next(context.TODO()) {
 		var elem TeamModels.Team
 		err := cur.Decode(&elem)
@@ -51,7 +51,6 @@ func GetAllTeamsForLeague(leagueID string) ([]*TeamModels.Team, error) {
 		}
 		results = append(results, &elem)
 	}
-
 	cur.Close(context.TODO())
 
 	return results, nil

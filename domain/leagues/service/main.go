@@ -37,7 +37,8 @@ func CreateLeague(jsonBody io.ReadCloser) (string, error) {
 
 	league.LeagueID = uuid.New().String()
 	// initialize matches to empty array
-	league.Matches = []LeagueModels.LeagueMatch{}
+	league.UpcomingMatches = []LeagueModels.LeagueMatch{}
+	league.PastMatches = []LeagueModels.LeagueMatch{}
 
 	err = validateLeague(&league)
 	if err != nil {

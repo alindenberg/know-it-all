@@ -71,3 +71,17 @@ func CreateUserBet(w http.ResponseWriter, req *http.Request, params httprouter.P
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 }
+
+func AddFriend(w http.ResponseWriter, req *http.Request, params httprouter.Params) {
+	userId := params.ByName("id")
+	friendId := params.ByName("friendId")
+
+	err := UserService.AddFriend(userId, friendId)
+	if err != nil {
+		SharedResponses.Error(w, err)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+}

@@ -10,8 +10,10 @@ type League struct {
 	LogoURL  string
 	Country  string
 	Division int
-	// Embedded array of league's matches
-	Matches []LeagueMatch
+	// Embedded array of league's upcoming matches
+	UpcomingMatches []LeagueMatch
+	// Embedded array of league's past matches
+	PastMatches []LeagueMatch
 }
 
 type LeagueMatch struct {
