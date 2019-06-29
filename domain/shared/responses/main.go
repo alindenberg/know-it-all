@@ -17,6 +17,13 @@ func Error(w http.ResponseWriter, err error) {
 	json.NewEncoder(w).Encode(map[string]interface{}{"error": err.Error()})
 }
 
+func Duplicate(w http.ResponseWriter, err error) {
+	log.Println(err)
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusConflict)
+	json.NewEncoder(w).Encode(map[string]interface{}{"error": err.Error()})
+}
+
 func Create(w http.ResponseWriter, id string) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)

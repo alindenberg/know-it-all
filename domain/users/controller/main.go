@@ -3,6 +3,7 @@ package usercontroller
 import (
 	"encoding/json"
 	"net/http"
+	"strings"
 
 	SharedResponses "github.com/alindenberg/know-it-all/domain/shared/responses"
 	UserService "github.com/alindenberg/know-it-all/domain/users/service"
@@ -39,6 +40,10 @@ func GetAllUsers(w http.ResponseWriter, req *http.Request, _ httprouter.Params) 
 func CreateUser(w http.ResponseWriter, req *http.Request, _ httprouter.Params) {
 	id, err := UserService.CreateUser(req.Body)
 	if err != nil {
+		if strings.Contains(err.Error(), "duplicate") {
+			SharedResponses.Duplicate(w, err)
+		}
+
 		SharedResponses.Error(w, err)
 		return
 	}

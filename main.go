@@ -37,6 +37,7 @@ func addRouteHandlers() {
 
 	r.POST("/leagues", leaguesController.CreateLeague)
 	r.POST("/leagues/:leagueId/matches", leaguesController.CreateLeagueMatch)
+	r.POST("/leagues/:leagueId/matches/:matchId/resolve", leaguesController.ResolveLeagueMatch)
 
 	r.DELETE("/leagues/:id", leaguesController.DeleteLeague)
 
@@ -49,6 +50,13 @@ func addRouteHandlers() {
 	r.POST("/users/:id/friends/:friendId", usersController.AddFriend)
 
 	r.DELETE("/users/:id", usersController.DeleteUser)
+
+	// Leaderboard Routes
+
+	// global leaderboard
+	// r.GET("/leaderboard", leaderboardController.GetGlobalLeaderboard)
+	// get a user's leaderboard containing friends
+	// r.GET("/leaderboard/:userId/friends")
 
 	// Register routes
 	http.Handle("/", r)
@@ -83,7 +91,6 @@ func Auth(handler httprouter.Handle, scopesNeeded []string) httprouter.Handle {
 		}
 		handler(w, r, ps)
 	}
-
 }
 
 func startServer() {

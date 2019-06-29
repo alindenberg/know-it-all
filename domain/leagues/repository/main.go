@@ -63,11 +63,24 @@ func CreateLeagueMatch(leagueId string, match *LeagueModels.LeagueMatch) error {
 		},
 	)
 
-	if err != nil {
-		return err
-	}
+	return err
+}
 
-	return nil
+func ResolveLeagueMatch(leagueID string, matchID string, matchResult *LeagueModels.LeagueMatchResult) error {
+	collection := mongo.GetDbClient().Collection(COLLECTION)
+	_, err := collection.UpdateOne(
+		context.TODO(),
+		bson.D{
+			{"leagueid", leagueID},
+			{"upcomingmatches.matchid", matchID},
+		},
+		bson.D{
+			{"$set", bson.D{{"upcomingmatches.$.awayteamscore", matchResult.AwayScore}}},
+			{"$set", bson.D{{"upcomingmatches.$.hometeamscore", matchResult.HomeScore}}},
+		},
+	)
+
+	return err
 }
 
 func DeleteLeague(id string) error {

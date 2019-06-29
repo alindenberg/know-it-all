@@ -10,6 +10,7 @@ import (
 	"os"
 	"strings"
 
+	LeagueModels "github.com/alindenberg/know-it-all/domain/leagues/models"
 	UserModels "github.com/alindenberg/know-it-all/domain/users/models"
 	UserRepository "github.com/alindenberg/know-it-all/domain/users/repository"
 	"github.com/dgrijalva/jwt-go"
@@ -71,6 +72,36 @@ func AddFriend(userId string, friendId string) error {
 	return UserRepository.AddFriend(userId, friendId)
 }
 
+// Heavy load function for right now. Never done by a user or within the app,
+// only by admin / bot on a daily basis. Look to refactor data model in future
+func ResolveBets(matchID string, matchResult *LeagueModels.LeagueMatchResult) error {
+	usersWithBets, err := UserRepository.GetUsersWithBetOnMatch(matchID)
+	if err != nil {
+		return err
+	}
+
+	correctPrediction := getCorrectPrediction(matchResult.HomeScore, matchResult.AwayScore)
+	for _, user := range usersWithBets {
+		for _, bet := range user.Bets {
+			if bet.MatchID == matchID {
+				// wonBet := false
+				bet.IsResolved = true
+				if bet.Prediction == correctPrediction {
+					bet.Won = true
+					// wonBet = true
+				}
+				go UserRepository.UpdateUserBet(user.UserID, &bet)
+				// go LeaderboardService.UpdateLeaderboard(userId, wonBet)
+				break
+			}
+		}
+	}
+
+	return nil
+
+	// return UserRepository.ResolveBets(matcmatchIDhId, correctPrediction)
+}
+
 func Authenticate(accessToken string) ([]string, error) {
 	claims := UserModels.UserClaim{}
 	tkn, err := jwt.ParseWithClaims(accessToken, &claims, func(token *jwt.Token) (interface{}, error) {
@@ -127,4 +158,13 @@ func getPemCert(token *jwt.Token) (string, error) {
 	}
 
 	return cert, nil
+}
+
+func getCorrectPrediction(homeScore int, awayScore int) UserModels.Prediction {
+	if homeScore == awayScore {
+		return UserModels.Draw
+	} else if homeScore > awayScore {
+		return UserModels.HomeTeam
+	}
+	return UserModels.AwayTeam
 }

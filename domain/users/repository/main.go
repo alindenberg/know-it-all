@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
 
 	mongo "github.com/alindenberg/know-it-all/database"
 	UserModels "github.com/alindenberg/know-it-all/domain/users/models"
@@ -114,4 +115,48 @@ func AddFriend(userId string, friendId string) error {
 		bson.D{{"$push", bson.D{{"friends", friendId}}}},
 	)
 	return err
+}
+
+func GetUsersWithBetOnMatch(matchID string) ([]*UserModels.User, error) {
+	collection := mongo.GetDbClient().Collection(COLLECTION)
+	cur, err := collection.Find(
+		context.TODO(),
+		bson.D{
+			{"bets.matchid", matchID},
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	var results []*UserModels.User
+	for cur.Next(context.TODO()) {
+		var user UserModels.User
+		err := cur.Decode(&user)
+		if err != nil {
+			return nil, err
+		}
+		results = append(results, &user)
+	}
+
+	cur.Close(context.TODO())
+
+	return results, err
+}
+
+func UpdateUserBet(userID string, bet *UserModels.UserBet) {
+	log.Println("Bet : ", bet)
+	collection := mongo.GetDbClient().Collection(COLLECTION)
+	res, _ := collection.UpdateOne(
+		context.TODO(),
+		bson.D{
+			{"userid", userID},
+			{"bets.matchid", bet.MatchID},
+		},
+		bson.D{
+			{"$set", bson.D{{"bets.$", bet}}},
+		},
+	)
+
+	log.Println("update bet result : ", res)
 }

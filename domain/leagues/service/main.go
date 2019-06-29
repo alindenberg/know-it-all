@@ -9,6 +9,7 @@ import (
 
 	LeagueModels "github.com/alindenberg/know-it-all/domain/leagues/models"
 	LeagueRepository "github.com/alindenberg/know-it-all/domain/leagues/repository"
+	UserService "github.com/alindenberg/know-it-all/domain/users/service"
 	"github.com/google/uuid"
 )
 
@@ -67,6 +68,28 @@ func CreateLeagueMatch(leagueId string, jsonBody io.ReadCloser) (string, error) 
 	return match.MatchID, LeagueRepository.CreateLeagueMatch(leagueId, &match)
 }
 
+func ResolveLeagueMatch(leagueID string, matchID string, jsonBody io.ReadCloser) error {
+	var matchResult LeagueModels.LeagueMatchResult
+	decoder := json.NewDecoder(jsonBody)
+	err := decoder.Decode(&matchResult)
+	if err != nil {
+		return err
+	}
+
+	err = validateMatchResult(&matchResult)
+	if err != nil {
+		return err
+	}
+
+	err = LeagueRepository.ResolveLeagueMatch(leagueID, matchID, &matchResult)
+	if err != nil {
+		return err
+	}
+
+	err = UserService.ResolveBets(matchID, &matchResult)
+	return err
+}
+
 func DeleteLeague(id string) error {
 	// Minimal input sanitization on id value
 	// just make sure its valid uuid
@@ -103,5 +126,16 @@ func validateMatch(match *LeagueModels.LeagueMatch) error {
 	if match.Date.Before(time.Now().UTC()) {
 		return errors.New(fmt.Sprintf("New match must have Date after the current time"))
 	}
+	return nil
+}
+
+func validateMatchResult(matchResult *LeagueModels.LeagueMatchResult) error {
+	if matchResult.AwayScore < 0 {
+		return errors.New("Away team score must be equal to or greater than 0")
+	}
+	if matchResult.HomeScore < 0 {
+		return errors.New("Home team score must be equal to or greater than 0")
+	}
+
 	return nil
 }

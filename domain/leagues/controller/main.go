@@ -45,15 +45,29 @@ func CreateLeague(w http.ResponseWriter, req *http.Request, _ httprouter.Params)
 }
 
 func CreateLeagueMatch(w http.ResponseWriter, req *http.Request, params httprouter.Params) {
-	leageuId := params.ByName("leagueId")
+	leageuID := params.ByName("leagueId")
 
-	id, err := LeagueService.CreateLeagueMatch(leageuId, req.Body)
+	id, err := LeagueService.CreateLeagueMatch(leageuID, req.Body)
 	if err != nil {
 		SharedResponses.Error(w, err)
 		return
 	}
 
 	SharedResponses.Create(w, id)
+}
+
+func ResolveLeagueMatch(w http.ResponseWriter, req *http.Request, params httprouter.Params) {
+	leagueID := params.ByName("leagueId")
+	matchID := params.ByName("matchId")
+
+	err := LeagueService.ResolveLeagueMatch(leagueID, matchID, req.Body)
+	if err != nil {
+		SharedResponses.Error(w, err)
+		return
+	}
+
+	SharedResponses.NoContent(w)
+
 }
 
 func DeleteLeague(w http.ResponseWriter, req *http.Request, params httprouter.Params) {
