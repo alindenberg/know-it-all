@@ -10,8 +10,6 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-var COLLECTION = "users"
-
 func GetUser(w http.ResponseWriter, req *http.Request, params httprouter.Params) {
 	id := params.ByName("id")
 

@@ -38,6 +38,9 @@ func CreateUser(jsonBody io.ReadCloser) (string, error) {
 		userRequest.Email,
 		[]UserModels.UserBet{},
 		[]string{},
+		0,
+		0,
+		0.0,
 	}
 
 	return user.UserID, UserRepository.CreateUser(&user)
@@ -82,16 +85,20 @@ func ResolveBets(matchID string, matchResult *LeagueModels.LeagueMatchResult) er
 
 	correctPrediction := getCorrectPrediction(matchResult.HomeScore, matchResult.AwayScore)
 	for _, user := range usersWithBets {
-		for _, bet := range user.Bets {
-			if bet.MatchID == matchID {
-				// wonBet := false
-				bet.IsResolved = true
-				if bet.Prediction == correctPrediction {
-					bet.Won = true
-					// wonBet = true
+		for i := 0; i < len(user.Bets); i++ {
+			if user.Bets[i].MatchID == matchID {
+				if user.Bets[i].IsResolved {
+					return errors.New(fmt.Sprintf("Error : User %s bet already resolved for match %s", user.UserID, matchID))
+				} else if user.Bets[i].Prediction == correctPrediction {
+					user.Bets[i].Won = true
+					user.Wins = user.Wins + 1
+				} else {
+					user.Bets[i].Won = false
+					user.Losses = user.Losses + 1
 				}
-				go UserRepository.UpdateUserBet(user.UserID, &bet)
-				// go LeaderboardService.UpdateLeaderboard(userId, wonBet)
+				user.WinPercentage = float64(user.Wins) / float64(user.Wins+user.Losses)
+				user.Bets[i].IsResolved = true
+				go UserRepository.UpdateUser(user)
 				break
 			}
 		}

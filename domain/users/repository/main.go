@@ -144,19 +144,17 @@ func GetUsersWithBetOnMatch(matchID string) ([]*UserModels.User, error) {
 	return results, err
 }
 
-func UpdateUserBet(userID string, bet *UserModels.UserBet) {
-	log.Println("Bet : ", bet)
+func UpdateUser(user *UserModels.User) {
+	log.Println("USER IN REPO ", user)
 	collection := mongo.GetDbClient().Collection(COLLECTION)
-	res, _ := collection.UpdateOne(
+	res, err := collection.ReplaceOne(
 		context.TODO(),
 		bson.D{
-			{"userid", userID},
-			{"bets.matchid", bet.MatchID},
+			{"userid", user.UserID},
 		},
-		bson.D{
-			{"$set", bson.D{{"bets.$", bet}}},
-		},
+		user,
 	)
 
-	log.Println("update bet result : ", res)
+	log.Println("update user err : ", err)
+	log.Println("update user result : ", res)
 }
