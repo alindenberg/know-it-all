@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
 
 	mongo "github.com/alindenberg/know-it-all/database"
 	UserModels "github.com/alindenberg/know-it-all/domain/users/models"
@@ -145,16 +144,12 @@ func GetUsersWithBetOnMatch(matchID string) ([]*UserModels.User, error) {
 }
 
 func UpdateUser(user *UserModels.User) {
-	log.Println("USER IN REPO ", user)
 	collection := mongo.GetDbClient().Collection(COLLECTION)
-	res, err := collection.ReplaceOne(
+	collection.ReplaceOne(
 		context.TODO(),
 		bson.D{
 			{"userid", user.UserID},
 		},
 		user,
 	)
-
-	log.Println("update user err : ", err)
-	log.Println("update user result : ", res)
 }

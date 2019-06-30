@@ -51,12 +51,9 @@ func addRouteHandlers() {
 
 	r.DELETE("/users/:id", usersController.DeleteUser)
 
-	// Leaderboard Routes
-
-	// global leaderboard
-	// r.GET("/leaderboard", leaderboardController.GetGlobalLeaderboard)
-	// get a user's leaderboard containing friends
-	// r.GET("/leaderboard/:userId/friends")
+	// Leaderboard routes
+	r.GET("/leaderboard", usersController.GetLeaderboard)
+	r.GET("/leaderboard/:userId", usersController.GetLeaderboardForUser)
 
 	// Register routes
 	http.Handle("/", r)

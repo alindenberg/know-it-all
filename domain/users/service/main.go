@@ -88,7 +88,7 @@ func ResolveBets(matchID string, matchResult *LeagueModels.LeagueMatchResult) er
 		for i := 0; i < len(user.Bets); i++ {
 			if user.Bets[i].MatchID == matchID {
 				if user.Bets[i].IsResolved {
-					return errors.New(fmt.Sprintf("Error : User %s bet already resolved for match %s", user.UserID, matchID))
+					return errors.New(fmt.Sprintf("Error : User (%s) bet already resolved for match %s", user.UserID, matchID))
 				} else if user.Bets[i].Prediction == correctPrediction {
 					user.Bets[i].Won = true
 					user.Wins = user.Wins + 1
