@@ -51,6 +51,17 @@ func CreateLeague(league LeagueModels.League) error {
 	return err
 }
 
+func GetLeagueMatches(leagueID string) (*[]LeagueModels.LeagueMatch, error) {
+	collection := mongo.GetDbClient().Collection(COLLECTION)
+	result := LeagueModels.League{}
+	err := collection.FindOne(context.TODO(), bson.D{{"leagueid", leagueID}}).Decode(&result)
+	if err != nil {
+		return nil, err
+	}
+
+	return &result.UpcomingMatches, nil
+}
+
 func CreateLeagueMatch(leagueId string, match *LeagueModels.LeagueMatch) error {
 	collection := mongo.GetDbClient().Collection(COLLECTION)
 	_, err := collection.UpdateOne(

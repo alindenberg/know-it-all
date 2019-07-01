@@ -130,6 +130,7 @@ func Authenticate(accessToken string) ([]string, error) {
 func betFromRequest(request *UserModels.UserBetRequest) *UserModels.UserBet {
 	return &UserModels.UserBet{
 		request.MatchID,
+		request.LeagueID,
 		request.Prediction,
 		false,
 		false,

@@ -32,11 +32,13 @@ type User struct {
 
 type UserBetRequest struct {
 	MatchID    string
+	LeagueID   string
 	Prediction Prediction
 }
 
 type UserBet struct {
 	MatchID    string
+	LeagueID   string
 	Prediction Prediction
 	IsResolved bool
 	Won        bool

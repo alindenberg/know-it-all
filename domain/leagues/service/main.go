@@ -49,6 +49,37 @@ func CreateLeague(jsonBody io.ReadCloser) (string, error) {
 	return league.LeagueID, LeagueRepository.CreateLeague(league)
 }
 
+func GetLeagueMatch(leagueID string, matchID string) (*LeagueModels.LeagueMatch, error) {
+	// Minimal input sanitization on id value
+	// just make sure its valid uuid
+	_, err := uuid.Parse(leagueID)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = uuid.Parse(matchID)
+	if err != nil {
+		return nil, err
+	}
+
+	matches, err := LeagueRepository.GetLeagueMatches(leagueID)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, match := range *matches {
+		if match.MatchID == matchID {
+			return &match, nil
+		}
+	}
+
+	return nil, errors.New(fmt.Sprintf("No match found in leagueId %s for matchId %s", leagueID, matchID))
+}
+
+func GetAllLeagueMatches(leagueID string) (*[]LeagueModels.LeagueMatch, error) {
+	return LeagueRepository.GetLeagueMatches(leagueID)
+}
+
 func CreateLeagueMatch(leagueId string, jsonBody io.ReadCloser) (string, error) {
 	var match LeagueModels.LeagueMatch
 	decoder := json.NewDecoder(jsonBody)

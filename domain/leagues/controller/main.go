@@ -56,6 +56,34 @@ func CreateLeagueMatch(w http.ResponseWriter, req *http.Request, params httprout
 	SharedResponses.Create(w, id)
 }
 
+func GetLeagueMatch(w http.ResponseWriter, req *http.Request, params httprouter.Params) {
+	leagueID := params.ByName("leagueId")
+	matchID := params.ByName("matchId")
+
+	result, err := LeagueService.GetLeagueMatch(leagueID, matchID)
+	if err != nil {
+		SharedResponses.Error(w, err)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(result)
+}
+
+func GetAllLeagueMatches(w http.ResponseWriter, req *http.Request, params httprouter.Params) {
+	leagueID := params.ByName("leagueId")
+
+	results, err := LeagueService.GetAllLeagueMatches(leagueID)
+	if err != nil {
+		SharedResponses.Error(w, err)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(results)
+}
+
 func ResolveLeagueMatch(w http.ResponseWriter, req *http.Request, params httprouter.Params) {
 	leagueID := params.ByName("leagueId")
 	matchID := params.ByName("matchId")
