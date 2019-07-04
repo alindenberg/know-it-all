@@ -59,7 +59,7 @@ func GetAllTeamsForLeague(leagueID string) ([]*TeamModels.Team, error) {
 func GetTeam(teamID string) (*TeamModels.Team, error) {
 	collection := mongo.GetDbClient().Collection(COLLECTION)
 	team := TeamModels.Team{}
-	err := collection.FindOne(context.TODO(), bson.D{{"teamID", teamID}}).Decode(&team)
+	err := collection.FindOne(context.TODO(), bson.D{{"teamid", teamID}}).Decode(&team)
 	if err != nil {
 		return nil, err
 	}

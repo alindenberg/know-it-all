@@ -30,9 +30,13 @@ type User struct {
 	WinPercentage float64
 }
 
-type UserBetRequest struct {
+type CreateBetRequest struct {
 	MatchID    string
 	LeagueID   string
+	Prediction Prediction
+}
+
+type UpdateBetRequest struct {
 	Prediction Prediction
 }
 

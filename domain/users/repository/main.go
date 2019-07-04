@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
 
 	mongo "github.com/alindenberg/know-it-all/database"
 	UserModels "github.com/alindenberg/know-it-all/domain/users/models"
@@ -89,6 +90,7 @@ func CreateUserBet(id string, bet *UserModels.UserBet) error {
 			{"$set", bson.D{{"bets.$", bet}}},
 		},
 	)
+	log.Println("Create result ", res)
 	if err != nil {
 		return err
 	}
@@ -103,6 +105,27 @@ func CreateUserBet(id string, bet *UserModels.UserBet) error {
 			},
 		)
 	}
+	return nil
+}
+
+func UpdateUserBet(userID string, matchID string, prediction UserModels.Prediction) error {
+	collection := mongo.GetDbClient().Collection(COLLECTION)
+	res, err := collection.UpdateOne(
+		context.TODO(),
+		bson.D{
+			{"userid", userID}, {"bets.matchid", matchID},
+		},
+		bson.D{
+			{"$set", bson.D{{"bets.$.prediction", prediction}}},
+		},
+	)
+
+	if err != nil {
+		return err
+	} else if res.MatchedCount == 0 {
+		return errors.New(fmt.Sprintf("No user bet found for for matchID: %s", matchID))
+	}
+
 	return nil
 }
 

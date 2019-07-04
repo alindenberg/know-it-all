@@ -11,7 +11,7 @@ import (
 )
 
 func GetUser(w http.ResponseWriter, req *http.Request, params httprouter.Params) {
-	id := params.ByName("id")
+	id := params.ByName("userId")
 
 	result, err := UserService.GetUser(id)
 	if err != nil {
@@ -50,7 +50,7 @@ func CreateUser(w http.ResponseWriter, req *http.Request, _ httprouter.Params) {
 }
 
 func DeleteUser(w http.ResponseWriter, req *http.Request, params httprouter.Params) {
-	id := params.ByName("id")
+	id := params.ByName("userId")
 
 	err := UserService.DeleteUser(id)
 	if err != nil {
@@ -63,7 +63,7 @@ func DeleteUser(w http.ResponseWriter, req *http.Request, params httprouter.Para
 }
 
 func CreateUserBet(w http.ResponseWriter, req *http.Request, params httprouter.Params) {
-	id := params.ByName("id")
+	id := params.ByName("userId")
 
 	err := UserService.CreateUserBet(id, req.Body)
 	if err != nil {
@@ -75,8 +75,22 @@ func CreateUserBet(w http.ResponseWriter, req *http.Request, params httprouter.P
 	w.WriteHeader(http.StatusCreated)
 }
 
+func UpdateUserBet(w http.ResponseWriter, req *http.Request, params httprouter.Params) {
+	userID := params.ByName("userId")
+	matchID := params.ByName("matchId")
+
+	err := UserService.UpdateUserBet(userID, matchID, req.Body)
+	if err != nil {
+		SharedResponses.Error(w, err)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+}
+
 func AddFriend(w http.ResponseWriter, req *http.Request, params httprouter.Params) {
-	userId := params.ByName("id")
+	userId := params.ByName("userId")
 	friendId := params.ByName("friendId")
 
 	err := UserService.AddFriend(userId, friendId)

@@ -14,10 +14,11 @@ import (
 func GetTeam(teamID string) (*TeamModels.Team, error) {
 	// Minimal input sanitization on id value
 	// just make sure its valid uuid
-	_, err := uuid.Parse(teamID)
-	if err != nil {
-		return nil, err
-	}
+
+	// _, err := uuid.Parse(teamID)
+	// if err != nil {
+	// 	return nil, err
+	// }
 
 	return TeamRepository.GetTeam(teamID)
 }

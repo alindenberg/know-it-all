@@ -44,14 +44,15 @@ func addRouteHandlers() {
 	r.DELETE("/leagues/:id", leaguesController.DeleteLeague)
 
 	// User Routes
-	r.GET("/users/:id", usersController.GetUser)
 	r.GET("/users", usersController.GetAllUsers)
+	r.GET("/users/:userId", usersController.GetUser)
 
 	r.POST("/users", usersController.CreateUser)
-	r.POST("/users/:id/bets", usersController.CreateUserBet)
-	r.POST("/users/:id/friends/:friendId", usersController.AddFriend)
+	r.POST("/users/:userId/bets", usersController.CreateUserBet)
+	r.POST("/users/:userId/bets/:matchId", usersController.UpdateUserBet)
+	r.POST("/users/:userId/friends/:friendId", usersController.AddFriend)
 
-	r.DELETE("/users/:id", usersController.DeleteUser)
+	r.DELETE("/users/:userId", usersController.DeleteUser)
 
 	// Leaderboard routes
 	r.GET("/leaderboard", usersController.GetLeaderboard)

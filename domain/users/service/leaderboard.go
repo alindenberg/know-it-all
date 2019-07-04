@@ -12,7 +12,7 @@ func GetLeaderboard() ([]*UserModels.User, error) {
 func GetLeaderboardForUser(userID string) ([]*UserModels.User, error) {
 	user, err := UserRepository.GetUser(userID)
 	if err != nil {
-		return []*UserModels.User{}, nil
+		return nil, err
 	}
 
 	usersNeeded := append(user.Friends, user.UserID)

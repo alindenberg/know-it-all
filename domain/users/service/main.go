@@ -58,11 +58,11 @@ func DeleteUser(id string) error {
 }
 
 func CreateUserBet(id string, jsonBody io.ReadCloser) error {
-	var betRequest UserModels.UserBetRequest
+	var betRequest UserModels.CreateBetRequest
 	decoder := json.NewDecoder(jsonBody)
 	err := decoder.Decode(&betRequest)
 	if err != nil {
-		log.Println("Error decoding bet request", err)
+		log.Println("Error decoding CreateBetRequest - ", err)
 		return err
 	}
 
@@ -73,6 +73,23 @@ func CreateUserBet(id string, jsonBody io.ReadCloser) error {
 
 func AddFriend(userId string, friendId string) error {
 	return UserRepository.AddFriend(userId, friendId)
+}
+
+func UpdateUserBet(userID string, matchID string, jsonBody io.ReadCloser) error {
+	_, err := uuid.Parse(matchID)
+	if err != nil {
+		return errors.New(fmt.Sprintf("Error parsing match id : %s", err.Error()))
+	}
+
+	var updateBetRequest UserModels.UpdateBetRequest
+	decoder := json.NewDecoder(jsonBody)
+	err = decoder.Decode(&updateBetRequest)
+	if err != nil {
+		log.Println("Error decoding UpdateBetRequest -", err.Error)
+		return err
+	}
+
+	return UserRepository.UpdateUserBet(userID, matchID, updateBetRequest.Prediction)
 }
 
 // Heavy load function for right now. Never done by a user or within the app,
@@ -127,7 +144,7 @@ func Authenticate(accessToken string) ([]string, error) {
 	return strings.Split(claims.Scope, " "), nil
 }
 
-func betFromRequest(request *UserModels.UserBetRequest) *UserModels.UserBet {
+func betFromRequest(request *UserModels.CreateBetRequest) *UserModels.UserBet {
 	return &UserModels.UserBet{
 		request.MatchID,
 		request.LeagueID,
