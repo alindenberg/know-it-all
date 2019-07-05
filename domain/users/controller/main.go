@@ -62,6 +62,18 @@ func DeleteUser(w http.ResponseWriter, req *http.Request, params httprouter.Para
 	w.WriteHeader(http.StatusNoContent)
 }
 
+func CreateUsername(w http.ResponseWriter, req *http.Request, params httprouter.Params) {
+	id := params.ByName("userId")
+
+	err := UserService.CreateUsername(id, req.Body)
+	if err != nil {
+		SharedResponses.Error(w, err)
+		return
+	}
+
+	SharedResponses.NoContent(w)
+}
+
 func CreateUserBet(w http.ResponseWriter, req *http.Request, params httprouter.Params) {
 	id := params.ByName("userId")
 

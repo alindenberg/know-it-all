@@ -65,6 +65,23 @@ func CreateUser(user *UserModels.User) error {
 	return err
 }
 
+func CreateUsername(id string, username string) error {
+	collection := mongo.GetDbClient().Collection(COLLECTION)
+	res, err := collection.UpdateOne(
+		context.TODO(),
+		bson.D{{"userid", id}},
+		bson.D{{"$set", bson.D{{"username", username}}}},
+	)
+
+	if err != nil {
+		return err
+	} else if res.MatchedCount == 0 {
+		return errors.New(fmt.Sprintf("No user found for for id: %s", id))
+	}
+
+	return nil
+}
+
 func DeleteUser(id string) error {
 	collection := mongo.GetDbClient().Collection(COLLECTION)
 	result, err := collection.DeleteOne(context.TODO(), bson.D{{"userid", id}})

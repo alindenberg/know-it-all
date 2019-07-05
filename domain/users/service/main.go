@@ -36,6 +36,7 @@ func CreateUser(jsonBody io.ReadCloser) (string, error) {
 	user := UserModels.User{
 		userRequest.UserID,
 		userRequest.Email,
+		"",
 		[]UserModels.UserBet{},
 		[]string{},
 		0,
@@ -57,6 +58,22 @@ func DeleteUser(id string) error {
 	return UserRepository.DeleteUser(id)
 }
 
+func CreateUsername(id string, jsonBody io.ReadCloser) error {
+	var usernameRequest UserModels.CreateUsernameRequest
+	decoder := json.NewDecoder(jsonBody)
+	err := decoder.Decode(&usernameRequest)
+	if err != nil {
+		return err
+	}
+
+	err = validateUsername(usernameRequest.Username)
+	if err != nil {
+		return err
+	}
+
+	return UserRepository.CreateUsername(id, usernameRequest.Username)
+
+}
 func CreateUserBet(id string, jsonBody io.ReadCloser) error {
 	var betRequest UserModels.CreateBetRequest
 	decoder := json.NewDecoder(jsonBody)
@@ -154,6 +171,12 @@ func betFromRequest(request *UserModels.CreateBetRequest) *UserModels.UserBet {
 	}
 }
 func validateUser(user *UserModels.User) error {
+	return validateUsername(user.Username)
+}
+func validateUsername(username string) error {
+	if len(username) < 5 || len(username) > 20 {
+		return errors.New("Username must be between 5 and 20 characters in length.")
+	}
 	return nil
 }
 func getPemCert(token *jwt.Token) (string, error) {

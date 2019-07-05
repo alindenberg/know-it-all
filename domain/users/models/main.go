@@ -23,6 +23,7 @@ type UserRequest struct {
 type User struct {
 	UserID        string
 	Email         string
+	Username      string
 	Bets          []UserBet
 	Friends       []string
 	Wins          int
@@ -34,6 +35,10 @@ type CreateBetRequest struct {
 	MatchID    string
 	LeagueID   string
 	Prediction Prediction
+}
+
+type CreateUsernameRequest struct {
+	Username string
 }
 
 type UpdateBetRequest struct {

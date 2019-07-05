@@ -48,6 +48,7 @@ func addRouteHandlers() {
 	r.GET("/users/:userId", usersController.GetUser)
 
 	r.POST("/users", usersController.CreateUser)
+	r.POST("/users/:userId/username", usersController.CreateUsername)
 	r.POST("/users/:userId/bets", usersController.CreateUserBet)
 	r.POST("/users/:userId/bets/:matchId", usersController.UpdateUserBet)
 	r.POST("/users/:userId/friends/:friendId", usersController.AddFriend)
