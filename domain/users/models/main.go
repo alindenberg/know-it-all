@@ -17,8 +17,9 @@ type UserKeys struct {
 	RenewToken  string
 }
 type UserRequest struct {
-	UserID string
-	Email  string
+	UserID   string
+	Email    string
+	Username string
 }
 type User struct {
 	UserID        string

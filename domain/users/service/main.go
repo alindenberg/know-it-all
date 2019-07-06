@@ -36,12 +36,17 @@ func CreateUser(jsonBody io.ReadCloser) (string, error) {
 	user := UserModels.User{
 		userRequest.UserID,
 		userRequest.Email,
-		"",
+		userRequest.Username,
 		[]UserModels.UserBet{},
 		[]string{},
 		0,
 		0,
 		0.0,
+	}
+
+	err = validateUser(&user)
+	if err != nil {
+		return "", err
 	}
 
 	return user.UserID, UserRepository.CreateUser(&user)
