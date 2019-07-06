@@ -97,6 +97,19 @@ func AddFriend(userId string, friendId string) error {
 	return UserRepository.AddFriend(userId, friendId)
 }
 
+func GetUserFriends(userId string) ([]*UserModels.User, error) {
+	user, err := UserRepository.GetUser(userId)
+	if err != nil {
+		return nil, err
+	}
+
+	friends, err := UserRepository.GetUserFriends(user.Friends)
+	if err != nil {
+		return nil, err
+	}
+
+	return friends, nil
+}
 func UpdateUserBet(userID string, matchID string, jsonBody io.ReadCloser) error {
 	_, err := uuid.Parse(matchID)
 	if err != nil {

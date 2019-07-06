@@ -156,6 +156,28 @@ func AddFriend(userId string, friendId string) error {
 	return err
 }
 
+func GetUserFriends(friendIds []string) ([]*UserModels.User, error) {
+	collection := mongo.GetDbClient().Collection(COLLECTION)
+	cur, err := collection.Find(context.TODO(), bson.D{{"userid", bson.D{{"$in", friendIds}}}}, options.Find())
+	if err != nil {
+		return nil, err
+	}
+
+	var results []*UserModels.User
+	for cur.Next(context.TODO()) {
+		var user UserModels.User
+		err := cur.Decode(&user)
+		if err != nil {
+			return nil, err
+		}
+		results = append(results, &user)
+	}
+
+	cur.Close(context.TODO())
+
+	return results, nil
+}
+
 func GetUsersWithBetOnMatch(matchID string) ([]*UserModels.User, error) {
 	collection := mongo.GetDbClient().Collection(COLLECTION)
 	cur, err := collection.Find(

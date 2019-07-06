@@ -102,10 +102,10 @@ func UpdateUserBet(w http.ResponseWriter, req *http.Request, params httprouter.P
 }
 
 func AddFriend(w http.ResponseWriter, req *http.Request, params httprouter.Params) {
-	userId := params.ByName("userId")
-	friendId := params.ByName("friendId")
+	userID := params.ByName("userId")
+	friendID := params.ByName("friendId")
 
-	err := UserService.AddFriend(userId, friendId)
+	err := UserService.AddFriend(userID, friendID)
 	if err != nil {
 		SharedResponses.Error(w, err)
 		return
@@ -113,4 +113,18 @@ func AddFriend(w http.ResponseWriter, req *http.Request, params httprouter.Param
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
+}
+
+func GetUserFriends(w http.ResponseWriter, req *http.Request, params httprouter.Params) {
+	id := params.ByName("userId")
+
+	result, err := UserService.GetUserFriends(id)
+	if err != nil {
+		SharedResponses.Error(w, err)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(result)
 }
