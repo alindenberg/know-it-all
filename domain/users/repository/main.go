@@ -21,6 +21,28 @@ func GetAllUsers() ([]*UserModels.User, error) {
 		return nil, err
 	}
 
+	results := []*UserModels.User{}
+	for cur.Next(context.TODO()) {
+		var user UserModels.User
+		err := cur.Decode(&user)
+		if err != nil {
+			return nil, err
+		}
+		results = append(results, &user)
+	}
+
+	cur.Close(context.TODO())
+
+	return results, nil
+}
+
+func GetUsersByUsername(username string) ([]*UserModels.User, error) {
+	collection := mongo.GetDbClient().Collection(COLLECTION)
+	cur, err := collection.Find(context.TODO(), bson.D{{"username", bson.D{{"$regex", username}}}}, options.Find())
+	if err != nil {
+		return nil, err
+	}
+
 	var results []*UserModels.User
 	for cur.Next(context.TODO()) {
 		var user UserModels.User
@@ -40,17 +62,6 @@ func GetUser(id string) (*UserModels.User, error) {
 	collection := mongo.GetDbClient().Collection(COLLECTION)
 	result := UserModels.User{}
 	err := collection.FindOne(context.TODO(), bson.D{{"userid", id}}).Decode(&result)
-	if err != nil {
-		return nil, err
-	}
-
-	return &result, nil
-}
-
-func GetUserByUsername(username string) (*UserModels.User, error) {
-	collection := mongo.GetDbClient().Collection(COLLECTION)
-	result := UserModels.User{}
-	err := collection.FindOne(context.TODO(), bson.D{{"username", username}}).Decode(&result)
 	if err != nil {
 		return nil, err
 	}
@@ -94,6 +105,17 @@ func DeleteUser(id string) error {
 		return errors.New(fmt.Sprintf("Document with id %s was not found", id))
 	}
 	return nil
+}
+
+func DeleteUserFriend(userId string, friendId string) error {
+	collection := mongo.GetDbClient().Collection(COLLECTION)
+	_, err := collection.UpdateOne(
+		context.TODO(),
+		bson.D{{"userid", userId}},
+		bson.D{{"$pull", bson.D{{"friends", friendId}}}},
+	)
+
+	return err
 }
 
 func CreateUserBet(id string, bet *UserModels.UserBet) error {

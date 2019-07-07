@@ -55,6 +55,7 @@ func addRouteHandlers() {
 	r.POST("/users/:userId/friends/:friendId", usersController.AddFriend)
 
 	r.DELETE("/users/:userId", usersController.DeleteUser)
+	r.DELETE("/users/:userId/friends/:friendId", usersController.DeleteUserFriend)
 
 	// Leaderboard routes
 	r.GET("/leaderboard", usersController.GetLeaderboard)

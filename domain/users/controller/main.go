@@ -25,7 +25,9 @@ func GetUser(w http.ResponseWriter, req *http.Request, params httprouter.Params)
 }
 
 func GetAllUsers(w http.ResponseWriter, req *http.Request, _ httprouter.Params) {
-	result, err := UserService.GetAllUsers()
+	queryValues := req.URL.Query()
+	username := queryValues.Get("username")
+	result, err := UserService.GetAllUsers(username)
 	if err != nil {
 		SharedResponses.Error(w, err)
 		return
@@ -53,6 +55,20 @@ func DeleteUser(w http.ResponseWriter, req *http.Request, params httprouter.Para
 	id := params.ByName("userId")
 
 	err := UserService.DeleteUser(id)
+	if err != nil {
+		SharedResponses.Error(w, err)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusNoContent)
+}
+
+func DeleteUserFriend(w http.ResponseWriter, req *http.Request, params httprouter.Params) {
+	userId := params.ByName("userId")
+	friendId := params.ByName("friendId")
+
+	err := UserService.DeleteUserFriend(userId, friendId)
 	if err != nil {
 		SharedResponses.Error(w, err)
 		return

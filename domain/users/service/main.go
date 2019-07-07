@@ -21,7 +21,10 @@ func GetUser(id string) (*UserModels.User, error) {
 	return UserRepository.GetUser(id)
 }
 
-func GetAllUsers() ([]*UserModels.User, error) {
+func GetAllUsers(username string) ([]*UserModels.User, error) {
+	if username != "" {
+		return UserRepository.GetUsersByUsername(username)
+	}
 	return UserRepository.GetAllUsers()
 }
 
@@ -53,14 +56,11 @@ func CreateUser(jsonBody io.ReadCloser) (string, error) {
 }
 
 func DeleteUser(id string) error {
-	// Minimal input sanitization on id value
-	// just make sure its valid uuid
-	_, err := uuid.Parse(id)
-	if err != nil {
-		return err
-	}
-
 	return UserRepository.DeleteUser(id)
+}
+
+func DeleteUserFriend(userId string, friendId string) error {
+	return UserRepository.DeleteUserFriend(userId, friendId)
 }
 
 func CreateUsername(id string, jsonBody io.ReadCloser) error {
