@@ -10,7 +10,7 @@ import (
 	"os"
 	"strings"
 
-	LeagueModels "github.com/alindenberg/know-it-all/domain/leagues/models"
+	MatchModels "github.com/alindenberg/know-it-all/domain/matches/models"
 	UserModels "github.com/alindenberg/know-it-all/domain/users/models"
 	UserRepository "github.com/alindenberg/know-it-all/domain/users/repository"
 	"github.com/dgrijalva/jwt-go"
@@ -129,7 +129,7 @@ func UpdateUserBet(userID string, matchID string, jsonBody io.ReadCloser) error 
 
 // Heavy load function for right now. Never done by a user or within the app,
 // only by admin / bot on a daily basis. Look to refactor data model in future
-func ResolveBets(matchID string, matchResult *LeagueModels.LeagueMatchResult) error {
+func ResolveBets(matchID string, matchResult *MatchModels.MatchResult) error {
 	usersWithBets, err := UserRepository.GetUsersWithBetOnMatch(matchID)
 	if err != nil {
 		return err

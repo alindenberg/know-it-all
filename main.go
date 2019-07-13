@@ -7,6 +7,7 @@ import (
 
 	mongo "github.com/alindenberg/know-it-all/database"
 	leaguesController "github.com/alindenberg/know-it-all/domain/leagues/controller"
+	matchesController "github.com/alindenberg/know-it-all/domain/matches/controller"
 	SharedResponses "github.com/alindenberg/know-it-all/domain/shared/responses"
 	teamsController "github.com/alindenberg/know-it-all/domain/teams/controller"
 	usersController "github.com/alindenberg/know-it-all/domain/users/controller"
@@ -33,15 +34,18 @@ func addRouteHandlers() {
 	// League Routes
 	r.GET("/leagues", leaguesController.GetAllLeagues)
 	r.GET("/leagues/:leagueId", leaguesController.GetLeague)
-	r.GET("/leagues/:leagueId/matches", leaguesController.GetAllLeagueMatches)
-	r.GET("/leagues/:leagueId/matches/:matchId", leaguesController.GetLeagueMatch)
 	r.GET("/leagues/:leagueId/teams", teamsController.GetAllTeamsForLeague)
 
 	r.POST("/leagues", leaguesController.CreateLeague)
-	r.POST("/leagues/:leagueId/matches", leaguesController.CreateLeagueMatch)
-	r.POST("/leagues/:leagueId/matches/:matchId/resolve", leaguesController.ResolveLeagueMatch)
 
 	r.DELETE("/leagues/:id", leaguesController.DeleteLeague)
+
+	// Match Routes
+	r.GET("/matches", matchesController.GetAllMatches)
+	r.GET("/matches/:matchId", matchesController.GetMatch)
+
+	r.POST("/matches", matchesController.CreateMatch)
+	r.POST("/matches/:matchId/resolve", matchesController.ResolveMatch)
 
 	// User Routes
 	r.GET("/users", usersController.GetAllUsers)

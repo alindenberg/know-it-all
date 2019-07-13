@@ -51,49 +51,6 @@ func CreateLeague(league LeagueModels.League) error {
 	return err
 }
 
-func GetLeagueMatches(leagueID string) (*[]LeagueModels.LeagueMatch, error) {
-	collection := mongo.GetDbClient().Collection(COLLECTION)
-	result := LeagueModels.League{}
-	err := collection.FindOne(context.TODO(), bson.D{{"leagueid", leagueID}}).Decode(&result)
-	if err != nil {
-		return nil, err
-	}
-
-	return &result.UpcomingMatches, nil
-}
-
-func CreateLeagueMatch(leagueId string, match *LeagueModels.LeagueMatch) error {
-	collection := mongo.GetDbClient().Collection(COLLECTION)
-	_, err := collection.UpdateOne(
-		context.TODO(),
-		bson.D{
-			{"leagueid", leagueId},
-		},
-		bson.D{
-			{"$push", bson.D{{"upcomingmatches", match}}},
-		},
-	)
-
-	return err
-}
-
-func ResolveLeagueMatch(leagueID string, matchID string, matchResult *LeagueModels.LeagueMatchResult) error {
-	collection := mongo.GetDbClient().Collection(COLLECTION)
-	_, err := collection.UpdateOne(
-		context.TODO(),
-		bson.D{
-			{"leagueid", leagueID},
-			{"upcomingmatches.matchid", matchID},
-		},
-		bson.D{
-			{"$set", bson.D{{"upcomingmatches.$.awayteamscore", matchResult.AwayScore}}},
-			{"$set", bson.D{{"upcomingmatches.$.hometeamscore", matchResult.HomeScore}}},
-		},
-	)
-
-	return err
-}
-
 func DeleteLeague(id string) error {
 	collection := mongo.GetDbClient().Collection(COLLECTION)
 	result, err := collection.DeleteOne(context.TODO(), bson.D{{"leagueid", id}})
