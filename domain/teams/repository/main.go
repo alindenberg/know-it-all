@@ -13,9 +13,14 @@ import (
 
 var COLLECTION = "teams"
 
-func GetAllTeams() ([]*TeamModels.Team, error) {
+func GetAllTeams(leagueID string) ([]*TeamModels.Team, error) {
 	collection := mongo.GetDbClient().Collection(COLLECTION)
-	cur, err := collection.Find(context.TODO(), bson.D{}, options.Find())
+
+	filter := bson.D{}
+	if leagueID != "" {
+		filter = bson.D{{"leagues", leagueID}}
+	}
+	cur, err := collection.Find(context.TODO(), filter, options.Find())
 	if err != nil {
 		return nil, err
 	}
@@ -30,27 +35,6 @@ func GetAllTeams() ([]*TeamModels.Team, error) {
 		results = append(results, &elem)
 	}
 
-	cur.Close(context.TODO())
-
-	return results, nil
-}
-
-func GetAllTeamsForLeague(leagueID string) ([]*TeamModels.Team, error) {
-	collection := mongo.GetDbClient().Collection(COLLECTION)
-	cur, err := collection.Find(context.TODO(), bson.D{{"leagues", leagueID}}, options.Find())
-	if err != nil {
-		return nil, err
-	}
-
-	results := []*TeamModels.Team{}
-	for cur.Next(context.TODO()) {
-		var elem TeamModels.Team
-		err := cur.Decode(&elem)
-		if err != nil {
-			return nil, err
-		}
-		results = append(results, &elem)
-	}
 	cur.Close(context.TODO())
 
 	return results, nil

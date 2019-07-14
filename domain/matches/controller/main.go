@@ -34,7 +34,9 @@ func GetMatch(w http.ResponseWriter, req *http.Request, params httprouter.Params
 }
 
 func GetAllMatches(w http.ResponseWriter, req *http.Request, params httprouter.Params) {
-	results, err := MatchService.GetAllMatches()
+	queryValues := req.URL.Query()
+	leagueID := queryValues.Get("leagueId")
+	results, err := MatchService.GetAllMatches(leagueID)
 	if err != nil {
 		SharedResponses.Error(w, err)
 		return

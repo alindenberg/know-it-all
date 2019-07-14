@@ -23,14 +23,9 @@ func GetTeam(teamID string) (*TeamModels.Team, error) {
 	return TeamRepository.GetTeam(teamID)
 }
 
-func GetAllTeams() ([]*TeamModels.Team, error) {
-	return TeamRepository.GetAllTeams()
+func GetAllTeams(leagueID string) ([]*TeamModels.Team, error) {
+	return TeamRepository.GetAllTeams(leagueID)
 }
-
-func GetAllTeamsForLeague(leagueID string) ([]*TeamModels.Team, error) {
-	return TeamRepository.GetAllTeamsForLeague(leagueID)
-}
-
 func CreateTeam(jsonBody io.ReadCloser) (string, error) {
 	var team TeamModels.Team
 	decoder := json.NewDecoder(jsonBody)

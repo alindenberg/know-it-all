@@ -11,9 +11,15 @@ import (
 
 var COLLECTION = "matches"
 
-func GetAllMatches() ([]*MatchModels.Match, error) {
+func GetAllMatches(leagueID string) ([]*MatchModels.Match, error) {
 	collection := mongo.GetDbClient().Collection(COLLECTION)
-	cur, err := collection.Find(context.TODO(), bson.D{}, options.Find())
+
+	filter := bson.D{}
+	if leagueID != "" {
+		filter = bson.D{{"leagueid", leagueID}}
+	}
+
+	cur, err := collection.Find(context.TODO(), filter, options.Find())
 	if err != nil {
 		return nil, err
 	}

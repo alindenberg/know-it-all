@@ -34,7 +34,6 @@ func addRouteHandlers() {
 	// League Routes
 	r.GET("/leagues", leaguesController.GetAllLeagues)
 	r.GET("/leagues/:leagueId", leaguesController.GetLeague)
-	r.GET("/leagues/:leagueId/teams", teamsController.GetAllTeamsForLeague)
 
 	r.POST("/leagues", leaguesController.CreateLeague)
 

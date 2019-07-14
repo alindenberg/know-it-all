@@ -27,21 +27,9 @@ func GetTeam(w http.ResponseWriter, req *http.Request, params httprouter.Params)
 
 // GetAllTeams - get all teams
 func GetAllTeams(w http.ResponseWriter, req *http.Request, _ httprouter.Params) {
-	result, err := TeamService.GetAllTeams()
-
-	if err != nil {
-		SharedResponses.Error(w, err)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(result)
-}
-
-func GetAllTeamsForLeague(w http.ResponseWriter, req *http.Request, params httprouter.Params) {
-	leagueID := params.ByName("leagueId")
-	result, err := TeamService.GetAllTeamsForLeague(leagueID)
+	queryValues := req.URL.Query()
+	leagueID := queryValues.Get("leagueId")
+	result, err := TeamService.GetAllTeams(leagueID)
 
 	if err != nil {
 		SharedResponses.Error(w, err)
