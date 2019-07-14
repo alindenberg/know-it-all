@@ -46,8 +46,8 @@ func GetMatch(matchID string) (*MatchModels.Match, error) {
 	return match, nil
 }
 
-func GetAllMatches(leagueID string) ([]*MatchModels.Match, error) {
-	return MatchRepository.GetAllMatches(leagueID)
+func GetAllMatches(leagueID string, excludePast string) ([]*MatchModels.Match, error) {
+	return MatchRepository.GetAllMatches(leagueID, excludePast)
 }
 
 func ResolveMatch(matchID string, jsonBody io.ReadCloser) error {

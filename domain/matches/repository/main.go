@@ -2,6 +2,7 @@ package matchrepository
 
 import (
 	"context"
+	"time"
 
 	mongo "github.com/alindenberg/know-it-all/database"
 	MatchModels "github.com/alindenberg/know-it-all/domain/matches/models"
@@ -11,11 +12,15 @@ import (
 
 var COLLECTION = "matches"
 
-func GetAllMatches(leagueID string) ([]*MatchModels.Match, error) {
+func GetAllMatches(leagueID string, excludePast string) ([]*MatchModels.Match, error) {
 	collection := mongo.GetDbClient().Collection(COLLECTION)
 
 	filter := bson.D{}
-	if leagueID != "" {
+	if excludePast == "true" && leagueID != "" {
+		filter = bson.D{{"leagueid", leagueID}, {"date", bson.D{{"$gte", time.Now().UTC()}}}}
+	} else if excludePast == "true" {
+		filter = bson.D{{"date", bson.D{{"$gte", time.Now().UTC()}}}}
+	} else if leagueID != "" {
 		filter = bson.D{{"leagueid", leagueID}}
 	}
 
