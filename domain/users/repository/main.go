@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
 
 	mongo "github.com/alindenberg/know-it-all/database"
 	UserModels "github.com/alindenberg/know-it-all/domain/users/models"
@@ -107,6 +106,17 @@ func DeleteUser(id string) error {
 	return nil
 }
 
+func DeleteUserBet(userId string, matchId string) error {
+	collection := mongo.GetDbClient().Collection(COLLECTION)
+	_, err := collection.UpdateOne(
+		context.TODO(),
+		bson.D{{"userid", userId}},
+		bson.D{{"$pull", bson.D{{"bets", bson.D{{"matchid", matchId}}}}}},
+	)
+
+	return err
+}
+
 func DeleteUserFriend(userId string, friendId string) error {
 	collection := mongo.GetDbClient().Collection(COLLECTION)
 	_, err := collection.UpdateOne(
@@ -120,31 +130,16 @@ func DeleteUserFriend(userId string, friendId string) error {
 
 func CreateUserBet(id string, bet *UserModels.UserBet) error {
 	collection := mongo.GetDbClient().Collection(COLLECTION)
-	res, err := collection.UpdateOne(
+	_, err := collection.UpdateOne(
 		context.TODO(),
 		bson.D{
-			{"userid", id}, {"bets.matchid", bet.MatchID},
+			{"userid", id},
 		},
 		bson.D{
-			{"$set", bson.D{{"bets.$", bet}}},
+			{"$push", bson.D{{"bets", bet}}},
 		},
 	)
-	log.Println("Create result ", res)
-	if err != nil {
-		return err
-	}
-	if res.MatchedCount == 0 {
-		res, err = collection.UpdateOne(
-			context.TODO(),
-			bson.D{
-				{"userid", id},
-			},
-			bson.D{
-				{"$push", bson.D{{"bets", bet}}},
-			},
-		)
-	}
-	return nil
+	return err
 }
 
 func UpdateUserBet(userID string, matchID string, prediction UserModels.Prediction) error {

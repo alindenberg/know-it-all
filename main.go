@@ -59,6 +59,7 @@ func addRouteHandlers() {
 
 	r.DELETE("/users/:userId", usersController.DeleteUser)
 	r.DELETE("/users/:userId/friends/:friendId", usersController.DeleteUserFriend)
+	r.DELETE("/users/:userId/bets/:matchId", usersController.DeleteUserBet)
 
 	// Leaderboard routes
 	r.GET("/leaderboard", usersController.GetLeaderboard)

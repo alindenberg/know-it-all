@@ -64,6 +64,20 @@ func DeleteUser(w http.ResponseWriter, req *http.Request, params httprouter.Para
 	w.WriteHeader(http.StatusNoContent)
 }
 
+func DeleteUserBet(w http.ResponseWriter, req *http.Request, params httprouter.Params) {
+	userId := params.ByName("userId")
+	matchId := params.ByName("matchId")
+
+	err := UserService.DeleteUserBet(userId, matchId)
+	if err != nil {
+		SharedResponses.Error(w, err)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusNoContent)
+}
+
 func DeleteUserFriend(w http.ResponseWriter, req *http.Request, params httprouter.Params) {
 	userId := params.ByName("userId")
 	friendId := params.ByName("friendId")

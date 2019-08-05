@@ -59,6 +59,10 @@ func DeleteUser(id string) error {
 	return UserRepository.DeleteUser(id)
 }
 
+func DeleteUserBet(userId string, betId string) error {
+	return UserRepository.DeleteUserBet(userId, betId)
+}
+
 func DeleteUserFriend(userId string, friendId string) error {
 	return UserRepository.DeleteUserFriend(userId, friendId)
 }
